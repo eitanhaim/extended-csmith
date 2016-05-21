@@ -97,7 +97,7 @@ char __executed_checks[N_WRAP+1];
 #include "safe_math_macros.h"
 #else
 #define FUNC_NAME(x) (safe_##x)
-#include "safe_math.h"
+//#include "safe_math.h"
 #undef FUNC_NAME
 #endif
 
