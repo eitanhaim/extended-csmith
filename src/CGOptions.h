@@ -65,8 +65,9 @@ using namespace std;
 #define CGOPTIONS_DEFAULT_OUTPUT_FILE		("")
 #define PLATFORM_CONFIG_FILE                ("platform.info")
 
-/*
- *
+/**
+ * ------- ExtendedCsmith Doc -------
+ * A class holding the states of all of the options provided by Csmith.
  */
 class CGOptions {
 public:

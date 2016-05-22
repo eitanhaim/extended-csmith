@@ -34,6 +34,11 @@
 #include <map>
 #include "Statement.h"
 
+/**
+ * ------- ExtendedCsmith Doc -------
+ * A class controling what kind of statements should be generated first.
+ * For example, Csmith could start to generate if-else without go over assignment or for.
+ */
 class PartialExpander {
 public:
 	static bool init_partial_expander(const std::string &options);

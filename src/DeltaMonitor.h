@@ -36,6 +36,10 @@
 class SequenceFactory;
 class Sequence;
 
+/**
+ * ------- ExtendedCsmith Doc -------
+ * An enumeration of the different delta monitor types in the program
+ */
 enum DELTA_TYPE {
 	dSimpleDelta,
 };

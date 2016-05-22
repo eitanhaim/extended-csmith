@@ -33,6 +33,11 @@
 class Variable;
 class Expression;
 
+/**
+ * ------- ExtendedCsmith Doc -------
+ * A class comparing expressions in order to find trivial code,
+ * when compatible_check_ flag is raised.
+ */
 class CompatibleChecker {
 public:
 	// return true if two args are identical

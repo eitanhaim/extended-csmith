@@ -51,8 +51,11 @@ map<string, bool> CGOptions::enabled_builtin_kinds_;
 int CGOptions::int_size_ = 0;
 int CGOptions::pointer_size_ = 0;
 
-/*
- *
+
+/**
+ * ------- ExtendedCsmith Doc -------
+ * Macro used to initialize the static data member f_ of the specified type with init value,
+ * and to implement the functions get() and set() of this member.
  */
 #define DEFINE_GETTER_SETTER(type, init, f)	\
 	type CGOptions::f##_ = (init); \
@@ -61,8 +64,10 @@ int CGOptions::pointer_size_ = 0;
 	type \
 	CGOptions::f(type p) { f##_ = p; return p; }
 
-/*
- *
+/**
+ * ------- ExtendedCsmith Doc -------
+ * Macros used to initialize the static data member f_ with an initialization value acording to its type,
+ * and to implement the functions get() and set() of this member.
  */
 #define DEFINE_GETTER_SETTER_BOOL(f) \
 	DEFINE_GETTER_SETTER(bool, false, f)
