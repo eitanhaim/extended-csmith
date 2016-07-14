@@ -141,6 +141,8 @@ Block::make_random(CGContext &cg_context, bool looping)
 	fm->set_fact_in(b, fm->global_facts);
 	Effect pre_effect = cg_context.get_accum_effect();
 
+    // ExtendedCsmith Doc: choose a random number in the range 0...(max_block_size - 1),
+    // representing the actual size of this block
 	unsigned int max = BlockProbability(*b);
 	if (Error::get_error() != SUCCESS) {
 		curr_func->stack.pop_back();

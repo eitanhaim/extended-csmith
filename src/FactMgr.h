@@ -141,16 +141,18 @@ public:
 
 	// maps to track facts and effects at historical generation points.
 	// they are used for bypassing analyzing statements if possible 
-	std::map<const Statement*, FactVec> map_facts_in;
-	std::map<const Statement*, FactVec> map_facts_out;
-	std::map<const Statement*, std::vector<Fact*> > map_facts_in_final;
-	std::map<const Statement*, std::vector<Fact*> > map_facts_out_final;
+	std::map<const Statement*, FactVec> map_facts_in;  // ExtendedCsmith Doc: used for the current invocation
+	std::map<const Statement*, FactVec> map_facts_out; // ExtendedCsmith Doc: used for the current invocation
+	std::map<const Statement*, std::vector<Fact*> > map_facts_in_final; // ExtendedCsmith Doc: the combined facts from pervious invocations
+	std::map<const Statement*, std::vector<Fact*> > map_facts_out_final; // ExtendedCsmith Doc: the combined facts from pervious invocations
 	std::map<const Statement*, Effect> map_stm_effect;
 	std::map<const Statement*, Effect> map_accum_effect;
 	std::map<const Statement*, bool> map_visited;
 
 	std::vector<const CFGEdge*> cfg_edges;
-	FactVec global_facts; 
+    
+    // ExtendedCsmith Doc: the running facts in the func function
+	FactVec global_facts;
 
 	const Function* func;
 };

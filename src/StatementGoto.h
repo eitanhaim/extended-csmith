@@ -69,7 +69,9 @@ public:
 
 	const Expression &test;
 	const Statement* dest;
-	std::string label;  
+	std::string label;
+    
+    // ExtendedCsmith Doc: the local variables whose initialization has been skipped due to this jump
 	std::vector<const Variable*> init_skipped_vars;
 	static std::map<const Statement*, std::string> stm_labels;
 };

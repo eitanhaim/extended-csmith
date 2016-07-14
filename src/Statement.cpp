@@ -534,6 +534,9 @@ Statement::set_accumulated_effect_after_block(Effect& eff, const Block* b, CGCon
 
 /* 
  * add back return_facts for skipped statement (see validate_and_update_facts)
+ *
+ * ------- ExtendedCsmith Doc -------
+ * Merges facts with all of the output facts of return statements in the function whose fact manager is fm.
  */
 void 
 Statement::add_back_return_facts(FactMgr* fm, std::vector<const Fact*>& facts) const

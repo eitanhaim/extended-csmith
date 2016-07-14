@@ -106,6 +106,7 @@ public:
 	const Type* return_type;
 //	bool isBackLink;
 
+    // ExtendedCsmith Doc: the function's externally visible effect
 	Effect feffect;
 	
 	std::vector<Block*> stack;

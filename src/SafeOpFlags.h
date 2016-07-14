@@ -89,6 +89,7 @@ public:
 
 	static std::vector<std::string> wrapper_names;;
 private:
+    // ExtendedCsmith Doc: flag indicating whether the operand type should be signed
 	bool op1_;
 	bool op2_;
 	bool is_func_;

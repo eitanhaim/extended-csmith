@@ -91,7 +91,7 @@ public:
 	void output() const;
 	void OutputFirstQuals(std::ostream &out) const;
 
-	bool wildcard;
+    bool wildcard; // ExtendedCsmith Doc: any qualifers fit
 	bool accept_stricter;
 private:
 	// Type qualifiers.

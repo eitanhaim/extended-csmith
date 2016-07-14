@@ -108,7 +108,7 @@ public:
 
 	static const Variable* null_ptr;
 	static const Variable* garbage_ptr;
-	static const Variable* tbd_ptr;
+	static const Variable* tbd_ptr; // ExtendedCsmith Doc: to be determined pointer (an initialization value)
 	
 	static vector<const Variable*> all_ptrs;
 	static vector<vector<const Variable*> > all_aliases;

@@ -52,7 +52,7 @@ public:
 
 	const Statement* src;
 	const Statement* dest;
-	bool  post_dest;
+	bool  post_dest; // ExtendedCsmith Doc: dest follows src's successor (e.g., src is a break statement)
 	bool  back_link;
 };
 

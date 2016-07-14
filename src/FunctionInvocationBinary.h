@@ -85,9 +85,9 @@ public:
 
 private:
 	eBinaryOps eFunc;
-
+    
+    // ExtendedCsmith Doc: temporary variable names for the two operand types
 	std::string tmp_var1;
-
 	std::string tmp_var2;
 
 private:
