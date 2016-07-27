@@ -291,7 +291,6 @@
 		944747CF1CF0EF2C00067E76 /* PartialExpander.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PartialExpander.h; sourceTree = "<group>"; };
 		944747D01CF0EF2C00067E76 /* platform.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = platform.cpp; sourceTree = "<group>"; };
 		944747D11CF0EF2C00067E76 /* platform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = platform.h; sourceTree = "<group>"; };
-		944747D21CF0EF2C00067E76 /* platform.info */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = platform.info; sourceTree = "<group>"; };
 		944747D31CF0EF2C00067E76 /* Probabilities.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Probabilities.cpp; sourceTree = "<group>"; };
 		944747D41CF0EF2C00067E76 /* Probabilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Probabilities.h; sourceTree = "<group>"; };
 		944747D51CF0EF2C00067E76 /* ProbabilityTable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProbabilityTable.h; sourceTree = "<group>"; };
@@ -415,6 +414,7 @@
 		944748511CF0EF2C00067E76 /* AUTHORS */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = AUTHORS; sourceTree = "<group>"; };
 		944748521CF0EF2C00067E76 /* aclocal.m4 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = aclocal.m4; sourceTree = "<group>"; };
 		944748531CF0EF2C00067E76 /* acinclude.m4 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = acinclude.m4; sourceTree = "<group>"; };
+		94C3CE421D4904E50001B91B /* platform.info */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = platform.info; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -587,7 +587,7 @@
 				944747CF1CF0EF2C00067E76 /* PartialExpander.h */,
 				944747D01CF0EF2C00067E76 /* platform.cpp */,
 				944747D11CF0EF2C00067E76 /* platform.h */,
-				944747D21CF0EF2C00067E76 /* platform.info */,
+				94C3CE421D4904E50001B91B /* platform.info */,
 				944747D31CF0EF2C00067E76 /* Probabilities.cpp */,
 				944747D41CF0EF2C00067E76 /* Probabilities.h */,
 				944747D51CF0EF2C00067E76 /* ProbabilityTable.h */,
