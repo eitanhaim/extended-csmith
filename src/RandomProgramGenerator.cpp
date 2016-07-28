@@ -199,9 +199,13 @@ static void print_help()
 	cout << "  --enable-builtin-kinds k1,k2 | --disable-builtin-kinds k1,k2: enable | disable certain kinds of builtin functions." << endl << endl;
 	cout << "  --builtin-function-prob <num>: set the probability of choosing a builtin function (default is 20)." << endl << endl;
 
-        // language options
+    // language options
 	cout << "  --lang-cpp : generate C++ code (C by default)." << endl << endl;
-
+    
+    // ****************************** ExtendedCsmith ******************************
+    cout << "  --recursion | --no-recursion: enable | disable to generate recursive functions (disabled by default)." << endl << endl;
+    cout << "  --mutual-recursion | --no-mutual-recursion: enable | disable to generate mutually recursive functions (disabled by default)." << endl << endl;
+    // ****************************************************************************
 }
 
 static void print_advanced_help()

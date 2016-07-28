@@ -66,7 +66,7 @@ using namespace std;
 #define PLATFORM_CONFIG_FILE                ("platform.info")
 
 /**
- * ------- ExtendedCsmith Doc -------
+ * ---------------------------- ExtendedCsmith Doc ----------------------------
  * A class holding the states of all of the options provided by Csmith.
  */
 class CGOptions {

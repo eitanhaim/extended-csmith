@@ -53,7 +53,7 @@ int CGOptions::pointer_size_ = 0;
 
 
 /**
- * ------- ExtendedCsmith Doc -------
+ * ---------------------------- ExtendedCsmith Doc ----------------------------
  * Macro used to initialize the static data member f_ of the specified type with init value,
  * and to implement the functions get() and set() of this member.
  */
@@ -65,7 +65,7 @@ int CGOptions::pointer_size_ = 0;
 	CGOptions::f(type p) { f##_ = p; return p; }
 
 /**
- * ------- ExtendedCsmith Doc -------
+ * ---------------------------- ExtendedCsmith Doc ----------------------------
  * Macros used to initialize the static data member f_ with an initialization value acording to its type,
  * and to implement the functions get() and set() of this member.
  */

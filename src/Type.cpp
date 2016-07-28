@@ -451,7 +451,7 @@ Type::find_pointer_type(const Type* t, bool add)
 }
 
 /**
- * ------- ExtendedCsmith Doc -------
+ * ---------------------------- ExtendedCsmith Doc ----------------------------
  * Returns true if this type is a struct or an union containing a const field.
  */
 bool

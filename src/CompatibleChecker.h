@@ -34,7 +34,7 @@ class Variable;
 class Expression;
 
 /**
- * ------- ExtendedCsmith Doc -------
+ * ---------------------------- ExtendedCsmith Doc ----------------------------
  * A class comparing expressions in order to find trivial code,
  * when compatible_check_ flag is raised.
  */

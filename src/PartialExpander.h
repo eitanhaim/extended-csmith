@@ -35,7 +35,7 @@
 #include "Statement.h"
 
 /**
- * ------- ExtendedCsmith Doc -------
+ * ---------------------------- ExtendedCsmith Doc ----------------------------
  * A class controling what kind of statements should be generated first.
  * For example, Csmith could start to generate if-else without go over assignment or for.
  */
