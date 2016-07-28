@@ -1390,6 +1390,29 @@ main(int argc, char **argv)
 			CGOptions::init_reducer(filename);
 			continue;
 		}
+        
+        // ****************************** ExtendedCsmith ******************************
+        if (strcmp (argv[i], "--recursion") == 0) {
+            CGOptions::recursion(true);
+            continue;
+        }
+        
+        if (strcmp (argv[i], "--no-recursion") == 0) {
+            CGOptions::recursion(false);
+            continue;
+        }
+        
+        if (strcmp (argv[i], "--mutual-recursion") == 0) {
+            CGOptions::mutual_recursion(true);
+            continue;
+        }
+        
+        if (strcmp (argv[i], "--no-mutual_recursion") == 0) {
+            CGOptions::mutual_recursion(false);
+            continue;
+        }
+        // ****************************************************************************
+
 		// OMIT help
 
 		// OMIT compute-hash
