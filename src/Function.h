@@ -59,6 +59,18 @@ class CVQualifiers;
 
 ///////////////////////////////////////////////////////////////////////////////
 
+// ****************************** ExtendedCsmith ******************************
+// An enumeration of the different function types in the program
+enum eFunctionType
+{
+    eRegular,
+    eRecursive,
+    eMutuallyRecursive,
+};
+
+#define MAX_FUNCTION_TYPE ((eFunctionType) (eMutuallyRecursive+1))
+// ****************************************************************************
+
 class Function
 {
 public:

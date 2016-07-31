@@ -63,11 +63,11 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "--crest"
+            argument = "--recursion"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "--builtins"
+            argument = "--mutual-recursion"
             isEnabled = "NO">
          </CommandLineArgument>
       </CommandLineArguments>

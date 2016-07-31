@@ -44,6 +44,7 @@
 #include "MspFilters.h"
 #include "VectorFilter.h"
 #include "random.h"
+#include "Function.h" // ExtendedCsmith
 
 ////////////////////////////////////////////////////////////////////////////////////
 #define VAL_ASSERT(val) assert(((val) <= 100) && ((val) >= -1))
@@ -500,6 +501,11 @@ Probabilities::set_single_name_maps()
 
 	// group for simple types which equal probability
 	set_single_name("safe_ops_size_prob", pSafeOpsSizeProb);
+    
+    // ****************************** ExtendedCsmith ******************************
+    // group for function
+    set_single_name("function_prob", pFunctionProb);
+    // ****************************************************************************
 }
 
 void
@@ -618,6 +624,10 @@ Probabilities::initialize_group_probs()
 	set_default_binary_ops_prob();
 	set_default_simple_types_prob();
 	set_default_safe_ops_size_prob();
+    
+    // ****************************** ExtendedCsmith ******************************
+    set_default_function_prob();
+    // ****************************************************************************
 
 	// setup random distribution of assignment operators (=, +=, /=...)
 	StatementAssign::InitProbabilityTable();	
@@ -634,6 +644,36 @@ Probabilities::set_group_prob(bool is_equal, ProbName pname, const std::map<Prob
 	g_elem->initialize(this, m);
 	probabilities_[pname] = g_elem;
 }
+
+// ****************************** ExtendedCsmith ******************************
+void
+Probabilities::set_default_function_prob()
+{
+    std::map<ProbName, int> m;
+    
+    if (CGOptions::recursion() && CGOptions::mutual_recursion()) {
+        SET_SINGLE_NAME("function_recursive_prob", Recursive, 15);
+        SET_SINGLE_NAME("fucntion_mutually_recursive_prob", MutuallyRecursive, 30);
+    }
+    else if (CGOptions::recursion() && !CGOptions::mutual_recursion()) {
+        SET_SINGLE_NAME("fucntion_mutually_recursive_prob", MutuallyRecursive, 0);
+        SET_SINGLE_NAME("function_recursive_prob", Recursive, 25);
+    }
+    else if (!CGOptions::recursion() && CGOptions::mutual_recursion()) {
+        SET_SINGLE_NAME("function_recursive_prob", Recursive, 0);
+        SET_SINGLE_NAME("fucntion_mutually_recursive_prob", MutuallyRecursive, 25);
+    }
+    else {
+        SET_SINGLE_NAME("function_recursive_prob", Recursive, 0);
+        SET_SINGLE_NAME("function_mutually_recursive_prob", MutuallyRecursive, 0);
+    }
+    
+    // use the remaining probabilities for regular fucntions
+    SET_SINGLE_NAME("function_regular_prob", Regular, 100);
+    
+    set_group_prob(false, pFunctionProb, m);
+}
+// ****************************************************************************
 
 void
 Probabilities::set_default_safe_ops_size_prob()
@@ -661,6 +701,7 @@ Probabilities::set_default_safe_ops_size_prob()
 	set_group_prob(true, pSafeOpsSizeProb, m);
 	set_prob_filter(pSafeOpsSizeProb);
 }
+
 void
 Probabilities::set_default_simple_types_prob()
 {

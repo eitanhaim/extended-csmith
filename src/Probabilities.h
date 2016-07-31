@@ -146,6 +146,14 @@ enum ProbName {
 	pInt16Prob,
 	pInt32Prob,
 	pInt64Prob,
+    
+    // ****************************** ExtendedCsmith ******************************
+    // group for function
+    pFunctionProb,
+    pRegularProb,
+    pRecursiveProb,
+    pMutuallyRecursiveProb,
+    // ****************************************************************************
 
 };
 
@@ -432,6 +440,10 @@ private:
 	void set_default_unary_ops_prob();
 
 	void set_default_safe_ops_size_prob();
+    
+    // ****************************** ExtendedCsmith ******************************
+    void set_default_function_prob();
+    // ****************************************************************************
 
 	void initialize();
 
