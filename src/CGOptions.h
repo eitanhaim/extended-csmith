@@ -361,13 +361,13 @@ public:
 	static bool signed_char_index(void);
 	static bool signed_char_index(bool p);
     
-    // ****************************** ExtendedCsmith ******************************
+    // ****************************** ExtendedCsmith ****************************** >>
     static bool recursion(void);
     static bool recursion(bool p);
 
     static bool mutual_recursion(void);
     static bool mutual_recursion(bool p);
-    // ****************************************************************************
+    // **************************************************************************** <<
 
 	/////////////////////////////////////////////////////////
 	static void set_default_settings(void);
@@ -608,10 +608,10 @@ private:
 	// flag to indicate language
 	static bool lang_cpp_;
     
-    // ****************************** ExtendedCsmith ******************************
+    // ****************************** ExtendedCsmith ****************************** >>
     static bool recursion_;
     static bool mutual_recursion_;
-    // ****************************************************************************
+    // **************************************************************************** <<
 private:
 	CGOptions(void);
 	CGOptions(CGOptions &cgo);

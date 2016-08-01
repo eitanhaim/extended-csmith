@@ -502,10 +502,10 @@ Probabilities::set_single_name_maps()
 	// group for simple types which equal probability
 	set_single_name("safe_ops_size_prob", pSafeOpsSizeProb);
     
-    // ****************************** ExtendedCsmith ******************************
+    // ****************************** ExtendedCsmith ****************************** >>
     // group for function
     set_single_name("function_prob", pFunctionProb);
-    // ****************************************************************************
+    // **************************************************************************** <<
 }
 
 void
@@ -625,9 +625,9 @@ Probabilities::initialize_group_probs()
 	set_default_simple_types_prob();
 	set_default_safe_ops_size_prob();
     
-    // ****************************** ExtendedCsmith ******************************
+    // ****************************** ExtendedCsmith ****************************** >>
     set_default_function_prob();
-    // ****************************************************************************
+    // **************************************************************************** <<
 
 	// setup random distribution of assignment operators (=, +=, /=...)
 	StatementAssign::InitProbabilityTable();	
@@ -645,7 +645,7 @@ Probabilities::set_group_prob(bool is_equal, ProbName pname, const std::map<Prob
 	probabilities_[pname] = g_elem;
 }
 
-// ****************************** ExtendedCsmith ******************************
+// ****************************** ExtendedCsmith ****************************** >>
 void
 Probabilities::set_default_function_prob()
 {
@@ -673,7 +673,7 @@ Probabilities::set_default_function_prob()
     
     set_group_prob(false, pFunctionProb, m);
 }
-// ****************************************************************************
+// **************************************************************************** <<
 
 void
 Probabilities::set_default_safe_ops_size_prob()

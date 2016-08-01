@@ -202,10 +202,10 @@ static void print_help()
     // language options
 	cout << "  --lang-cpp : generate C++ code (C by default)." << endl << endl;
     
-    // ****************************** ExtendedCsmith ******************************
+    // ****************************** ExtendedCsmith ****************************** >>
     cout << "  --recursion | --no-recursion: enable | disable to generate recursive functions (disabled by default)." << endl << endl;
     cout << "  --mutual-recursion | --no-mutual-recursion: enable | disable to generate mutually recursive functions (disabled by default)." << endl << endl;
-    // ****************************************************************************
+    // **************************************************************************** <<
 }
 
 static void print_advanced_help()
@@ -1391,7 +1391,7 @@ main(int argc, char **argv)
 			continue;
 		}
         
-        // ****************************** ExtendedCsmith ******************************
+        // ****************************** ExtendedCsmith ****************************** >>
         if (strcmp (argv[i], "--recursion") == 0) {
             CGOptions::recursion(true);
             continue;
@@ -1411,7 +1411,7 @@ main(int argc, char **argv)
             CGOptions::mutual_recursion(false);
             continue;
         }
-        // ****************************************************************************
+        // **************************************************************************** <<
 
 		// OMIT help
 

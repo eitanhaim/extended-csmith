@@ -59,7 +59,7 @@ class CVQualifiers;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-// ****************************** ExtendedCsmith ******************************
+// ****************************** ExtendedCsmith ****************************** >>
 // An enumeration of the different function types in the program
 enum eFunctionType
 {
@@ -69,7 +69,7 @@ enum eFunctionType
 };
 
 #define MAX_FUNCTION_TYPE ((eFunctionType) (eMutuallyRecursive+1))
-// ****************************************************************************
+// **************************************************************************** <<
 
 class Function
 {
@@ -118,8 +118,7 @@ public:
 	const Type* return_type;
 //	bool isBackLink;
 
-    // ExtendedCsmith Doc: the function's externally visible effect
-	Effect feffect;
+	Effect feffect; // ExtendedCsmith Doc: the function's externally visible effect
 	
 	std::vector<Block*> stack;
 	std::vector<Block*> blocks;
@@ -135,6 +134,14 @@ public:
 	bool is_builtin;
 	int  visited_cnt;
 	Effect accum_eff_context;
+    
+    // ****************************** ExtendedCsmith ****************************** >>
+    eFunctionType get_func_type(void) const { return func_type; }
+    static eFunctionType number_to_type(unsigned int value);
+    
+    eFunctionType func_type;
+    static ProbabilityTable<unsigned int, ProbName> *funcTable_;
+    // **************************************************************************** <<
 
 private:
 	static int deleteFunction(Function* func);
@@ -148,6 +155,10 @@ private:
 
 	static void initialize_builtin_functions();
 	static void make_builtin_function(const string &function_string);
+    
+    // ****************************** ExtendedCsmith ****************************** >>
+    static void InitProbabilityTable();
+    // **************************************************************************** <<
 
 private:
 	enum { UNBUILT, BUILDING, BUILT } build_state;

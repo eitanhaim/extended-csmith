@@ -197,10 +197,10 @@ DEFINE_GETTER_SETTER_BOOL(take_union_field_addr);
 DEFINE_GETTER_SETTER_BOOL(vol_struct_union_fields);
 DEFINE_GETTER_SETTER_BOOL(lang_cpp);
 
-// ****************************** ExtendedCsmith ******************************
+// ****************************** ExtendedCsmith ****************************** >>
 DEFINE_GETTER_SETTER_BOOL(recursion);
 DEFINE_GETTER_SETTER_BOOL(mutual_recursion);
-// ****************************************************************************
+// **************************************************************************** <<
 
 void
 CGOptions::set_default_builtin_kinds()
@@ -310,10 +310,10 @@ CGOptions::set_default_settings(void)
 	addr_taken_of_locals(true);
 	lang_cpp(false);
     
-    // ****************************** ExtendedCsmith ******************************
+    // ****************************** ExtendedCsmith ****************************** >>
     recursion(false);
     mutual_recursion(false);
-    // ****************************************************************************
+    // **************************************************************************** <<
 
 	set_default_builtin_kinds();
 }

@@ -67,6 +67,78 @@ using namespace std;
 
 ///////////////////////////////////////////////////////////////////////////////
 
+// ****************************** ExtendedCsmith ****************************** >>
+class FunctionFilter : public Filter
+{
+public:
+    explicit FunctionFilter(const CGContext &cg_context);
+    
+    virtual ~FunctionFilter(void);
+    
+    virtual bool filter(int v) const;
+private:
+    const CGContext &cg_context_;
+};
+
+FunctionFilter::FunctionFilter(const CGContext &cg_context)
+: cg_context_(cg_context)
+{
+    
+}
+
+FunctionFilter::~FunctionFilter(void)
+{
+    
+}
+
+// A table defining probabilities of different kinds of functions
+// Must initialize it before use
+ProbabilityTable<unsigned int, ProbName> *Function::funcTable_ = NULL;
+
+void
+Function::InitProbabilityTable()
+{
+    if (Function::funcTable_)
+        return;
+    
+    Function::funcTable_ = new ProbabilityTable<unsigned int, ProbName>();
+    Function::funcTable_->initialize(pFunctionProb);
+}
+
+eFunctionType
+Function::number_to_type(unsigned int value)
+{
+    assert(Function::funcTable_);
+    assert(value < 100);
+    ProbName pname = Function::funcTable_->get_value(value);
+    eFunctionType type = static_cast<eFunctionType>(Probabilities::pname_to_type(pname));
+    return type;
+}
+
+bool FunctionFilter::filter(int value) const
+{
+    assert(value != -1);
+    
+    if (!this->valid_filter())
+        return false;
+    
+    eFunctionType type = Function::number_to_type(value);
+    // TODO: think of the cases to filter out
+    
+    return false;
+}
+
+static eFunctionType
+FunctionProbability(const FunctionFilter *filter)
+{
+    int value = rnd_upto(100, filter);
+    ERROR_GUARD(MAX_FUNCTION_TYPE);
+    assert(value != -1);
+    assert(value >= 0 && value < 100);
+    return Function::number_to_type(value);
+}
+// **************************************************************************** <<
+
 static vector<Function*> FuncList;		// List of all functions in the program
 static vector<FactMgr*>  FMList;        // list of fact managers for each function
 static long cur_func_idx;				// Index into FuncList that we are currently working on
@@ -388,7 +460,8 @@ Function::Function(const string &name, const Type *return_type)
 	  is_inlined(false),
 	  is_builtin(false),
 	  visited_cnt(0),
-	  build_state(UNBUILT)
+	  build_state(UNBUILT),
+      func_type(eRegular) // ExtendedCsmith
 {
 	FuncList.push_back(this);			// Add to global list of functions.
 }
@@ -402,7 +475,8 @@ Function::Function(const string &name, const Type *return_type, bool builtin)
 	  is_inlined(false),
 	  is_builtin(builtin),
 	  visited_cnt(0),
-	  build_state(UNBUILT)
+	  build_state(UNBUILT),
+      func_type(eRegular) // ExtendedCsmith
 {
 	FuncList.push_back(this);			// Add to global list of functions.
 }
@@ -410,7 +484,7 @@ Function::Function(const string &name, const Type *return_type, bool builtin)
 Function *
 Function::make_random_signature(const CGContext& cg_context, const Type* type, const CVQualifiers* qfer)
 {
-	if (type == 0)
+    if (type == 0)
 		type = RandomReturnType();
 
 	DEPTH_GUARD_BY_TYPE_RETURN(dtFunction, NULL);
@@ -427,6 +501,15 @@ Function::make_random_signature(const CGContext& cg_context, const Type* type, c
 	FMList.push_back(new FactMgr(f));
 	if (CGOptions::inline_function() && rnd_flipcoin(InlineFunctionProb))
 		f->is_inlined = true;
+    
+    // ****************************** ExtendedCsmith ****************************** >>
+    // choose the function type
+    Function::InitProbabilityTable();
+    FunctionFilter filter(cg_context);
+    f->func_type = FunctionProbability(&filter);
+    ERROR_GUARD(NULL);
+    // **************************************************************************** <<
+    
 	return f;
 }
 
