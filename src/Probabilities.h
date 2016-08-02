@@ -150,8 +150,8 @@ enum ProbName {
     // ****************************** ExtendedCsmith ****************************** >>
     // group for function
     pFunctionProb,
-    pRegularProb,
-    pRecursiveProb,
+    pNonRecursiveProb,
+    pImmediateRecursiveProb,
     pMutuallyRecursiveProb,
     // **************************************************************************** <<
 

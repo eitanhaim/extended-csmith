@@ -117,15 +117,7 @@ Function::number_to_type(unsigned int value)
 
 bool FunctionFilter::filter(int value) const
 {
-    assert(value != -1);
-    
-    if (!this->valid_filter())
-        return false;
-    
-    eFunctionType type = Function::number_to_type(value);
-    // TODO: think of the cases to filter out
-    
-    return false;
+    return false; // any function type is fine
 }
 
 static eFunctionType
@@ -461,9 +453,9 @@ Function::Function(const string &name, const Type *return_type)
 	  is_builtin(false),
 	  visited_cnt(0),
 	  build_state(UNBUILT),
-      func_type(eRegular) // ExtendedCsmith
+      func_type(eNonRecursive)          // ExtendedCsmith
 {
-	FuncList.push_back(this);			// Add to global list of functions.
+	FuncList.push_back(this);           // Add to global list of functions.
 }
 
 Function::Function(const string &name, const Type *return_type, bool builtin)
@@ -476,9 +468,9 @@ Function::Function(const string &name, const Type *return_type, bool builtin)
 	  is_builtin(builtin),
 	  visited_cnt(0),
 	  build_state(UNBUILT),
-      func_type(eRegular) // ExtendedCsmith
+      func_type(eNonRecursive)          // ExtendedCsmith
 {
-	FuncList.push_back(this);			// Add to global list of functions.
+	FuncList.push_back(this);           // Add to global list of functions.
 }
 
 Function *
@@ -503,11 +495,13 @@ Function::make_random_signature(const CGContext& cg_context, const Type* type, c
 		f->is_inlined = true;
     
     // ****************************** ExtendedCsmith ****************************** >>
-    // choose the function type
-    Function::InitProbabilityTable();
-    FunctionFilter filter(cg_context);
-    f->func_type = FunctionProbability(&filter);
-    ERROR_GUARD(NULL);
+    if (CGOptions::immediate_recursion() || CGOptions::mutual_recursion()) {
+        // choose the function type
+        Function::InitProbabilityTable();
+        FunctionFilter filter(cg_context);
+        f->func_type = FunctionProbability(&filter);
+        ERROR_GUARD(NULL);
+    }
     // **************************************************************************** <<
     
 	return f;

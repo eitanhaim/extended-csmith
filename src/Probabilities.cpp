@@ -651,25 +651,25 @@ Probabilities::set_default_function_prob()
 {
     std::map<ProbName, int> m;
     
-    if (CGOptions::recursion() && CGOptions::mutual_recursion()) {
-        SET_SINGLE_NAME("function_recursive_prob", Recursive, 15);
+    if (CGOptions::immediate_recursion() && CGOptions::mutual_recursion()) {
+        SET_SINGLE_NAME("function_immediate_recursive_prob", ImmediateRecursive, 15);
         SET_SINGLE_NAME("fucntion_mutually_recursive_prob", MutuallyRecursive, 30);
     }
-    else if (CGOptions::recursion() && !CGOptions::mutual_recursion()) {
+    else if (CGOptions::immediate_recursion() && !CGOptions::mutual_recursion()) {
         SET_SINGLE_NAME("fucntion_mutually_recursive_prob", MutuallyRecursive, 0);
-        SET_SINGLE_NAME("function_recursive_prob", Recursive, 25);
+        SET_SINGLE_NAME("function_immediate_recursive_prob", ImmediateRecursive, 25);
     }
-    else if (!CGOptions::recursion() && CGOptions::mutual_recursion()) {
-        SET_SINGLE_NAME("function_recursive_prob", Recursive, 0);
+    else if (!CGOptions::immediate_recursion() && CGOptions::mutual_recursion()) {
+        SET_SINGLE_NAME("function_immediate_recursive_prob", ImmediateRecursive, 0);
         SET_SINGLE_NAME("fucntion_mutually_recursive_prob", MutuallyRecursive, 25);
     }
     else {
-        SET_SINGLE_NAME("function_recursive_prob", Recursive, 0);
+        SET_SINGLE_NAME("function_immediate_recursive_prob", ImmediateRecursive, 0);
         SET_SINGLE_NAME("function_mutually_recursive_prob", MutuallyRecursive, 0);
     }
     
-    // use the remaining probabilities for regular fucntions
-    SET_SINGLE_NAME("function_regular_prob", Regular, 100);
+    // use the remaining probabilities for non-recursive fucntions
+    SET_SINGLE_NAME("function_non_recursive_prob", NonRecursive, 100);
     
     set_group_prob(false, pFunctionProb, m);
 }

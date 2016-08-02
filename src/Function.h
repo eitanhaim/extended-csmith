@@ -63,8 +63,8 @@ class CVQualifiers;
 // An enumeration of the different function types in the program
 enum eFunctionType
 {
-    eRegular,
-    eRecursive,
+    eNonRecursive,
+    eImmediateRecursive,
     eMutuallyRecursive,
 };
 

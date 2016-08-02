@@ -203,7 +203,7 @@ static void print_help()
 	cout << "  --lang-cpp : generate C++ code (C by default)." << endl << endl;
     
     // ****************************** ExtendedCsmith ****************************** >>
-    cout << "  --recursion | --no-recursion: enable | disable to generate recursive functions (disabled by default)." << endl << endl;
+    cout << "  --immediate-recursion | --no-immediate-recursion: enable | disable to generate immediate recursive functions (disabled by default)." << endl << endl;
     cout << "  --mutual-recursion | --no-mutual-recursion: enable | disable to generate mutually recursive functions (disabled by default)." << endl << endl;
     // **************************************************************************** <<
 }
@@ -1392,13 +1392,13 @@ main(int argc, char **argv)
 		}
         
         // ****************************** ExtendedCsmith ****************************** >>
-        if (strcmp (argv[i], "--recursion") == 0) {
-            CGOptions::recursion(true);
+        if (strcmp (argv[i], "--immediate-recursion") == 0) {
+            CGOptions::immediate_recursion(true);
             continue;
         }
         
-        if (strcmp (argv[i], "--no-recursion") == 0) {
-            CGOptions::recursion(false);
+        if (strcmp (argv[i], "--no-immediate-recursion") == 0) {
+            CGOptions::immediate_recursion(false);
             continue;
         }
         

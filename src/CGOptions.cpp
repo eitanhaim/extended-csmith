@@ -198,7 +198,7 @@ DEFINE_GETTER_SETTER_BOOL(vol_struct_union_fields);
 DEFINE_GETTER_SETTER_BOOL(lang_cpp);
 
 // ****************************** ExtendedCsmith ****************************** >>
-DEFINE_GETTER_SETTER_BOOL(recursion);
+DEFINE_GETTER_SETTER_BOOL(immediate_recursion);
 DEFINE_GETTER_SETTER_BOOL(mutual_recursion);
 // **************************************************************************** <<
 
@@ -311,7 +311,7 @@ CGOptions::set_default_settings(void)
 	lang_cpp(false);
     
     // ****************************** ExtendedCsmith ****************************** >>
-    recursion(false);
+    immediate_recursion(false);
     mutual_recursion(false);
     // **************************************************************************** <<
 

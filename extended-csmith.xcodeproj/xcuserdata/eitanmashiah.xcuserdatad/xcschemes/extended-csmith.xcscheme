@@ -63,12 +63,12 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "--recursion"
-            isEnabled = "NO">
+            argument = "--immediate-recursion"
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "--mutual-recursion"
-            isEnabled = "NO">
+            isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>
       <AdditionalOptions>
