@@ -138,8 +138,9 @@ public:
     // ****************************** ExtendedCsmith ****************************** >>
     eFunctionType get_func_type(void) const { return func_type; }
     static eFunctionType number_to_type(unsigned int value);
+    Function(const std::string &name, const Type *return_type, eFunctionType func_type);
     
-    eFunctionType func_type;
+    const eFunctionType func_type;
     static ProbabilityTable<unsigned int, ProbName> *funcTable_;
     // **************************************************************************** <<
 

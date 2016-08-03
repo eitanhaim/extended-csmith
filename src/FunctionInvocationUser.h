@@ -54,6 +54,18 @@ class Variable;
 class SafeOpFlags;
 class Variable;
 
+// ****************************** ExtendedCsmith ****************************** >>
+// An enumeration of the different call function types in the program
+enum eFuncCallType
+{
+    eNonRecursiveCall,
+    eImmediateRecursiveCall,
+    eMutuallyRecursiveCall,
+};
+
+#define MAX_FUNC_CALL_TYPE ((eFuncCallType) (eMutuallyRecursiveCall+1))
+// **************************************************************************** <<
+
 class FunctionInvocationUser: public FunctionInvocation
 {
 	friend class FunctionInvocation;
@@ -85,10 +97,20 @@ public:
 	static void doFinalization(void);
 
 	FunctionInvocationUser(Function *target, bool isBackLink, const SafeOpFlags *flags);
+    
+    // ****************************** ExtendedCsmith ****************************** >>
+    FunctionInvocationUser(Function *target, bool isBackLink, const SafeOpFlags *flags, eFuncCallType call_type);
+    
+    eFuncCallType get_call_type(void) const { return call_type; }
+    // **************************************************************************** <<
 
 private:
 	Function *func;
 	bool isBackLink;
+    
+    // ****************************** ExtendedCsmith ****************************** >>
+    eFuncCallType call_type;
+    // **************************************************************************** <<
 
 private:
 	explicit FunctionInvocationUser(const FunctionInvocationUser &fiu);

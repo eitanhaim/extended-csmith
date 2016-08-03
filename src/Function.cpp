@@ -473,6 +473,23 @@ Function::Function(const string &name, const Type *return_type, bool builtin)
 	FuncList.push_back(this);           // Add to global list of functions.
 }
 
+// ****************************** ExtendedCsmith ****************************** >>
+Function::Function(const std::string &name, const Type *return_type, eFunctionType func_type)
+    : name(name),
+      return_type(return_type),
+      body(0),
+      fact_changed(false),
+      union_field_read(false),
+      is_inlined(false),
+      is_builtin(UNBUILT),
+      visited_cnt(0),
+      build_state(UNBUILT),
+      func_type(func_type)
+{
+    FuncList.push_back(this);           // Add to global list of functions.
+}
+// **************************************************************************** <<
+
 Function *
 Function::make_random_signature(const CGContext& cg_context, const Type* type, const CVQualifiers* qfer)
 {

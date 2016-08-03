@@ -89,6 +89,10 @@
 		944748A61CF0EF2C00067E76 /* _rand48.c in Sources */ = {isa = PBXBuildFile; fileRef = 944748301CF0EF2C00067E76 /* _rand48.c */; };
 		944748A71CF0EF2C00067E76 /* lrand48.c in Sources */ = {isa = PBXBuildFile; fileRef = 944748311CF0EF2C00067E76 /* lrand48.c */; };
 		944748A81CF0EF2C00067E76 /* srand48.c in Sources */ = {isa = PBXBuildFile; fileRef = 944748331CF0EF2C00067E76 /* srand48.c */; };
+		9459A0D91D5222AD00331859 /* ImmediateRecursiveFunction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9459A0D81D5222AD00331859 /* ImmediateRecursiveFunction.cpp */; };
+		9459A0DC1D5224AC00331859 /* MutuallyRecursiveFunction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9459A0DB1D5224AC00331859 /* MutuallyRecursiveFunction.cpp */; };
+		9459A0DF1D522B3600331859 /* RecursiveFactMgr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9459A0DE1D522B3600331859 /* RecursiveFactMgr.cpp */; };
+		9459A0E21D522C3300331859 /* RecursiveCGContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9459A0E11D522C3300331859 /* RecursiveCGContext.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -414,6 +418,14 @@
 		944748511CF0EF2C00067E76 /* AUTHORS */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = AUTHORS; sourceTree = "<group>"; };
 		944748521CF0EF2C00067E76 /* aclocal.m4 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = aclocal.m4; sourceTree = "<group>"; };
 		944748531CF0EF2C00067E76 /* acinclude.m4 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = acinclude.m4; sourceTree = "<group>"; };
+		9459A0D71D52228200331859 /* ImmediateRecursiveFunction.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ImmediateRecursiveFunction.h; sourceTree = "<group>"; };
+		9459A0D81D5222AD00331859 /* ImmediateRecursiveFunction.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ImmediateRecursiveFunction.cpp; sourceTree = "<group>"; };
+		9459A0DA1D52244700331859 /* MutuallyRecursiveFunction.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MutuallyRecursiveFunction.h; sourceTree = "<group>"; };
+		9459A0DB1D5224AC00331859 /* MutuallyRecursiveFunction.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MutuallyRecursiveFunction.cpp; sourceTree = "<group>"; };
+		9459A0DD1D522A9D00331859 /* RecursiveFactMgr.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RecursiveFactMgr.h; sourceTree = "<group>"; };
+		9459A0DE1D522B3600331859 /* RecursiveFactMgr.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RecursiveFactMgr.cpp; sourceTree = "<group>"; };
+		9459A0E01D522BCE00331859 /* RecursiveCGContext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RecursiveCGContext.h; sourceTree = "<group>"; };
+		9459A0E11D522C3300331859 /* RecursiveCGContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RecursiveCGContext.cpp; sourceTree = "<group>"; };
 		94C3CE421D4904E50001B91B /* platform.info */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = platform.info; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -497,6 +509,8 @@
 				944747751CF0EF2C00067E76 /* CFGEdge.h */,
 				944747761CF0EF2C00067E76 /* CGContext.cpp */,
 				944747771CF0EF2C00067E76 /* CGContext.h */,
+				9459A0E11D522C3300331859 /* RecursiveCGContext.cpp */,
+				9459A0E01D522BCE00331859 /* RecursiveCGContext.h */,
 				944747781CF0EF2C00067E76 /* CGOptions.cpp */,
 				944747791CF0EF2C00067E76 /* CGOptions.h */,
 				9447477A1CF0EF2C00067E76 /* Common.h */,
@@ -552,6 +566,8 @@
 				944747AC1CF0EF2C00067E76 /* Fact.h */,
 				944747AD1CF0EF2C00067E76 /* FactMgr.cpp */,
 				944747AE1CF0EF2C00067E76 /* FactMgr.h */,
+				9459A0DE1D522B3600331859 /* RecursiveFactMgr.cpp */,
+				9459A0DD1D522A9D00331859 /* RecursiveFactMgr.h */,
 				944747AF1CF0EF2C00067E76 /* FactPointTo.cpp */,
 				944747B01CF0EF2C00067E76 /* FactPointTo.h */,
 				944747B11CF0EF2C00067E76 /* FactUnion.cpp */,
@@ -562,6 +578,10 @@
 				944747B61CF0EF2C00067E76 /* Finalization.h */,
 				944747B71CF0EF2C00067E76 /* Function.cpp */,
 				944747B81CF0EF2C00067E76 /* Function.h */,
+				9459A0D81D5222AD00331859 /* ImmediateRecursiveFunction.cpp */,
+				9459A0D71D52228200331859 /* ImmediateRecursiveFunction.h */,
+				9459A0DB1D5224AC00331859 /* MutuallyRecursiveFunction.cpp */,
+				9459A0DA1D52244700331859 /* MutuallyRecursiveFunction.h */,
 				944747B91CF0EF2C00067E76 /* FunctionInvocation.cpp */,
 				944747BA1CF0EF2C00067E76 /* FunctionInvocation.h */,
 				944747BB1CF0EF2C00067E76 /* FunctionInvocationBinary.cpp */,
@@ -904,6 +924,7 @@
 				944748791CF0EF2C00067E76 /* Function.cpp in Sources */,
 				9447489D1CF0EF2C00067E76 /* test.c in Sources */,
 				944748801CF0EF2C00067E76 /* LinearSequence.cpp in Sources */,
+				9459A0DF1D522B3600331859 /* RecursiveFactMgr.cpp in Sources */,
 				944748701CF0EF2C00067E76 /* ExpressionVariable.cpp in Sources */,
 				944748561CF0EF2C00067E76 /* AbsRndNumGenerator.cpp in Sources */,
 				9447487C1CF0EF2C00067E76 /* FunctionInvocationUnary.cpp in Sources */,
@@ -936,6 +957,7 @@
 				944748901CF0EF2C00067E76 /* SimpleDeltaSequence.cpp in Sources */,
 				9447487E1CF0EF2C00067E76 /* KleeExtension.cpp in Sources */,
 				944748761CF0EF2C00067E76 /* FactUnion.cpp in Sources */,
+				9459A0E21D522C3300331859 /* RecursiveCGContext.cpp in Sources */,
 				9447489F1CF0EF2C00067E76 /* util.cpp in Sources */,
 				9447487D1CF0EF2C00067E76 /* FunctionInvocationUser.cpp in Sources */,
 				944748821CF0EF2C00067E76 /* MspFilters.cpp in Sources */,
@@ -958,9 +980,11 @@
 				944748A51CF0EF2C00067E76 /* volatile_runtime.c in Sources */,
 				944748581CF0EF2C00067E76 /* Block.cpp in Sources */,
 				9447489E1CF0EF2C00067E76 /* Type.cpp in Sources */,
+				9459A0DC1D5224AC00331859 /* MutuallyRecursiveFunction.cpp in Sources */,
 				944748611CF0EF2C00067E76 /* CVQualifiers.cpp in Sources */,
 				9447485E1CF0EF2C00067E76 /* Constant.cpp in Sources */,
 				944748601CF0EF2C00067E76 /* CrestExtension.cpp in Sources */,
+				9459A0D91D5222AD00331859 /* ImmediateRecursiveFunction.cpp in Sources */,
 				9447488B1CF0EF2C00067E76 /* ReducerOutputMgr.cpp in Sources */,
 				944748681CF0EF2C00067E76 /* DFSProgramGenerator.cpp in Sources */,
 			);

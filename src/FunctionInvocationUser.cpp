@@ -143,10 +143,23 @@ FunctionInvocationUser::FunctionInvocationUser(Function *target,
 						   bool isBackLink, const SafeOpFlags *flags)
 	: FunctionInvocation(eFuncCall, flags),
 	  func(target),
-	  isBackLink(isBackLink)
+	  isBackLink(isBackLink),
+      call_type(eNonRecursiveCall)      // ExtendedCsmith
 {
 	// Nothing else to do.  Caller must build useful params.
 }
+
+// ****************************** ExtendedCsmith ****************************** >>
+FunctionInvocationUser::FunctionInvocationUser(Function *target, bool isBackLink,
+                                               const SafeOpFlags *flags, eFuncCallType call_type)
+    : FunctionInvocation(eFuncCall, flags),
+      func(target),
+      isBackLink(isBackLink),
+      call_type(call_type)
+{
+    // Nothing else to do.  Caller must build useful params.
+}
+// **************************************************************************** <<
 
 /*
  * copy constructor
