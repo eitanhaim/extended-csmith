@@ -56,6 +56,7 @@ class CGContext;
 class Fact;
 class Constant;
 class CVQualifiers;
+class RecursiveFactMgr;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -76,7 +77,7 @@ class Function
 public:
 	friend void GenerateFunctions(void);
 
-	~Function();
+	virtual ~Function(); // ExtendedCsmith Edit
 
 	// Factory methods.
 	static Function *make_first(void);
@@ -92,6 +93,10 @@ public:
 	static void doFinalization();
 	static bool reach_max_functions_cnt();
 
+    /** 
+     * ---------------------------- ExtendedCsmith Doc ----------------------------
+     * Generates the function body when the parameters for this function are known. 
+     */
 	void generate_body_with_known_params(const CGContext &prev_context, Effect& effect_accum);
 	void compute_summary(void);
 
@@ -136,9 +141,10 @@ public:
 	Effect accum_eff_context;
     
     // ****************************** ExtendedCsmith ****************************** >>
-    eFunctionType get_func_type(void) const { return func_type; }
-    static eFunctionType number_to_type(unsigned int value);
     Function(const std::string &name, const Type *return_type, eFunctionType func_type);
+    static eFunctionType number_to_type(unsigned int value);
+    eFunctionType get_func_type(void) const { return func_type; }
+    bool is_recursive(void) const { return func_type == eImmediateRecursive || func_type == eMutuallyRecursive; }
     
     const eFunctionType func_type;
     static ProbabilityTable<unsigned int, ProbName> *funcTable_;
@@ -161,7 +167,7 @@ private:
     static void InitProbabilityTable();
     // **************************************************************************** <<
 
-private:
+protected:  // ExtendedCsmith Edit
 	enum { UNBUILT, BUILDING, BUILT } build_state;
 	std::vector<const Variable*> referenced_ptrs;
 };
@@ -179,6 +185,10 @@ FactMgr* get_fact_mgr(const CGContext* cg);
 const Function* find_function_by_name(const string& name);
 int find_function_in_set(const vector<const Function*>& set, const Function* f);
 const Block* find_blk_for_var(const Variable* v);
+
+// ****************************** ExtendedCsmith ****************************** >>
+void add_recursive_fact_mgr(RecursiveFactMgr* rfm);
+// **************************************************************************** <<
 
 ///////////////////////////////////////////////////////////////////////////////
 

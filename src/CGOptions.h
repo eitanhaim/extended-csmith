@@ -367,6 +367,8 @@ public:
 
     static bool mutual_recursion(void);
     static bool mutual_recursion(bool p);
+    
+    static bool recursion(void) { return immediate_recursion() || mutual_recursion(); }
     // **************************************************************************** <<
 
 	/////////////////////////////////////////////////////////

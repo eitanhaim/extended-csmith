@@ -125,7 +125,7 @@ public:
 
 	void post_creation_analysis(vector<const Fact*>& pre_facts, const Effect& pre_effect,  CGContext& cg_context) const;
 
-	void add_back_return_facts(FactMgr* fm, std::vector<const Fact*>& facts) const;
+	virtual void add_back_return_facts(FactMgr* fm, std::vector<const Fact*>& facts) const; // ExtendedCsmith Edit
 
 	bool in_block(const Block* b) const; 
 

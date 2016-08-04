@@ -12,11 +12,16 @@
 #include "CGContext.h"
 #include "Function.h"
 
-RecursiveCGContext::RecursiveCGContext(const Function* func, CGContext* cg_context)
+RecursiveCGContext::RecursiveCGContext(CGContext* cg_context)
     : curr_cg_context(cg_context),
-      func(func)
+      func(cg_context->get_current_func())
 {
     map_cg_contexts[cg_context->call_chain] = cg_context;
+}
+
+RecursiveCGContext::~RecursiveCGContext(void)
+{
+    // nothing to do
 }
 
 // **************************************************************************** <<

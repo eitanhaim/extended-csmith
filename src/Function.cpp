@@ -63,6 +63,14 @@
 #include "ExtensionMgr.h"
 #include "OutputMgr.h"
 
+// ****************************** ExtendedCsmith ****************************** >>
+#include "RecursiveBlock.h"
+#include "RecursiveFactMgr.h"
+#include "RecursiveCGContext.h"
+#include "ImmediateRecursiveFunction.h"
+#include "MutuallyRecursiveFunction.h"
+// **************************************************************************** <<
+
 using namespace std;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -129,12 +137,21 @@ FunctionProbability(const FunctionFilter *filter)
     assert(value >= 0 && value < 100);
     return Function::number_to_type(value);
 }
+
+static vector<RecursiveFactMgr*>  RFMList;      // List of fact managers for each recursive function
+
+void
+add_recursive_fact_mgr(RecursiveFactMgr* rfm)
+{
+    RFMList.push_back(rfm);
+}
+
 // **************************************************************************** <<
 
-static vector<Function*> FuncList;		// List of all functions in the program
-static vector<FactMgr*>  FMList;        // list of fact managers for each function
-static long cur_func_idx;				// Index into FuncList that we are currently working on
-static bool param_first=true;			// Flag to track output of commas 
+static vector<Function*> FuncList;              // List of all functions in the program
+static vector<FactMgr*>  FMList;                // List of fact managers for each function
+static long cur_func_idx;                       // Index into FuncList that we are currently working on
+static bool param_first=true;                   // Flag to track output of commas 
 static int builtin_functions_cnt;
 
 /*
@@ -143,7 +160,17 @@ static int builtin_functions_cnt;
 FactMgr* 
 get_fact_mgr_for_func(const Function* func)
 {
-	for (size_t i=0; i<FuncList.size(); i++) {
+    // ****************************** ExtendedCsmith ****************************** >>
+    if (CGOptions::recursion() && func->is_recursive()) {
+        for (size_t i=0; i<RFMList.size(); i++) {
+            if (RFMList[i]->get_func() == func) {
+                return RFMList[i]->get_curr_fact_mgr();
+            }
+        }
+    }
+    // **************************************************************************** <<
+
+    for (size_t i=0; i<FuncList.size(); i++) {
 		if (FuncList[i] == func) {
 			return FMList[i];
 		}
@@ -157,7 +184,7 @@ get_fact_mgr_for_func(const Function* func)
 FactMgr* 
 get_fact_mgr(const CGContext* cg)
 { 
-	return get_fact_mgr_for_func(cg->get_current_func());
+    return get_fact_mgr_for_func(cg->get_current_func());
 }
 
 const Function*
@@ -373,6 +400,15 @@ Function::choose_func(vector<Function *> funcs,
 		//	continue;
 		//}
 		// Otherwise, this is an acceptable choice.
+        
+        // ****************************** ExtendedCsmith ****************************** >>
+        if (CGOptions::mutual_recursion() && (*i)->func_type == eMutuallyRecursive) {
+            MutuallyRecursiveFunction* f = dynamic_cast<MutuallyRecursiveFunction*>(*i);
+            if (!f->is_first())
+                continue;
+        }
+        // **************************************************************************** <<
+        
 		if ((*i)->is_builtin)
 			ok_builtin_funcs.push_back(*i);
 		else
@@ -498,8 +534,35 @@ Function::make_random_signature(const CGContext& cg_context, const Type* type, c
 
 	DEPTH_GUARD_BY_TYPE_RETURN(dtFunction, NULL);
 	ERROR_GUARD(NULL);
-	Function *f = new Function(RandomFunctionName(), type);
-		
+    Function *f;    // ExtendedCsmith Edit
+	
+    // ****************************** ExtendedCsmith ****************************** >>
+    if (CGOptions::recursion()) {
+        // choose the function type
+        Function::InitProbabilityTable();
+        FunctionFilter filter(cg_context);
+        eFunctionType func_type = FunctionProbability(&filter);
+        ERROR_GUARD(NULL);
+        
+        switch (func_type) {
+            case eNonRecursive:
+                f = new Function(RandomFunctionName(), type);
+                break;
+            case eImmediateRecursive:
+                f = new ImmediateRecursiveFunction(RandomFunctionName(), type);
+                break;
+            case eMutuallyRecursive:
+                f = new MutuallyRecursiveFunction(RandomFunctionName(), type);
+                break;
+            default:
+                assert(!"unknown function type");
+                break;
+        }
+    } else {
+        f = new Function(RandomFunctionName(), type);
+    }
+    // **************************************************************************** <<
+    
 	// dummy variable representing return variable, we don't care about the type, so use 0
 	string rvname = f->name + "_" + "rv";
 	CVQualifiers ret_qfer = qfer==0 ? CVQualifiers::random_qualifiers(type, Effect::READ, cg_context, true) 
@@ -510,16 +573,6 @@ Function::make_random_signature(const CGContext& cg_context, const Type* type, c
 	FMList.push_back(new FactMgr(f));
 	if (CGOptions::inline_function() && rnd_flipcoin(InlineFunctionProb))
 		f->is_inlined = true;
-    
-    // ****************************** ExtendedCsmith ****************************** >>
-    if (CGOptions::immediate_recursion() || CGOptions::mutual_recursion()) {
-        // choose the function type
-        Function::InitProbabilityTable();
-        FunctionFilter filter(cg_context);
-        f->func_type = FunctionProbability(&filter);
-        ERROR_GUARD(NULL);
-    }
-    // **************************************************************************** <<
     
 	return f;
 }
@@ -776,10 +829,21 @@ Function::generate_body_with_known_params(const CGContext &prev_context, Effect&
 	prev_context.get_external_no_reads_writes(no_reads, no_writes, frame_vars);
 	RWDirective rwd(no_reads, no_writes, must_reads, must_writes);
 	cg_context.rw_directive = &rwd; 
-	cg_context.flags = 0;  
-
-	// Fill in the Function body. 
-	body = Block::make_random(cg_context); 
+	cg_context.flags = 0;
+    
+    // ****************************** ExtendedCsmith ****************************** >>
+    if (is_recursive()) {
+        // create fact manager and context suitable for this recursive function,
+        // then fill in the function body
+        RecursiveFactMgr* rec_fm = new RecursiveFactMgr(cg_context.call_chain, fm);
+        add_recursive_fact_mgr(rec_fm);
+        RecursiveCGContext rec_cg_context (&cg_context);
+        body = RecursiveBlock::make_random(rec_cg_context);
+    } else {
+        // fill in the function body
+        body = Block::make_random(cg_context);
+    }
+    // **************************************************************************** <<
 	ERROR_RETURN();
 	body->set_depth_protect(true);
 

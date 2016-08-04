@@ -21,6 +21,8 @@ class ImmediateRecursiveFunction: public Function
 public:
     ImmediateRecursiveFunction(const std::string &name, const Type *return_type);
     
+    virtual ~ImmediateRecursiveFunction();
+        
 private:
     
 };

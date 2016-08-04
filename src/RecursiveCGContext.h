@@ -23,7 +23,13 @@ using namespace std;
 class RecursiveCGContext
 {
 public:
-    RecursiveCGContext(const Function* func, CGContext* cg_context);
+    RecursiveCGContext(CGContext* cg_context);
+    
+    ~RecursiveCGContext(void);
+    
+    CGContext* get_curr_cg_context() const { return curr_cg_context; }
+    
+    Function* get_func() const { return func; }
     
 private:
     // maps call chains to contexts
@@ -33,7 +39,7 @@ private:
     CGContext* curr_cg_context;
     
     // the current function being analyzed
-    const Function* func;
+    Function* const func;
 };
 
 #endif /* RecursiveCGContext_h */

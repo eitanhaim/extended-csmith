@@ -25,6 +25,12 @@ class RecursiveFactMgr
 public:
     RecursiveFactMgr(vector<const Block*> call_chain, FactMgr* fact_mgr);
     
+    ~RecursiveFactMgr(void);
+    
+    FactMgr* get_curr_fact_mgr() const { return curr_fact_mgr; }
+    
+    const Function* get_func() const { return func; }
+    
 private:
     // maps call chains to fact managers
     map<vector<const Block*>, FactMgr*> map_fact_mgrs;

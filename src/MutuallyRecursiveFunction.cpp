@@ -15,4 +15,9 @@ MutuallyRecursiveFunction::MutuallyRecursiveFunction(const std::string &name, co
     // nothing to do
 }
 
+MutuallyRecursiveFunction::~MutuallyRecursiveFunction()
+{
+    // nothing to do
+}
+
 // **************************************************************************** <<

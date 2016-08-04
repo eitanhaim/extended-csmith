@@ -17,12 +17,16 @@ class MutuallyRecursiveFunction: public Function
 public:
     MutuallyRecursiveFunction(const std::string &name, const Type *return_type);
     
-    // Returns whether this function is the first one in its recursive call cycle
-    bool is_first() { return !prev_function; }
-
+    virtual ~MutuallyRecursiveFunction();
+    
+    MutuallyRecursiveFunction* get_prev_func() const { return prev_func; }
+    
+    /** Returns whether this function is the first one in its recursive call cycle. */
+    bool is_first() { return !prev_func; }
+    
 private:
     // the previous function in the corresponding recursive call cycle
-    MutuallyRecursiveFunction* prev_function;
+    MutuallyRecursiveFunction* prev_func;
 };
 
 #endif /* MutuallyRecursiveFunction_h */

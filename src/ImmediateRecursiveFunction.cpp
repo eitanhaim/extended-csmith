@@ -9,8 +9,14 @@
 
 #include "ImmediateRecursiveFunction.h"
 
+
 ImmediateRecursiveFunction::ImmediateRecursiveFunction(const std::string &name, const Type *return_type)
     : Function(name, return_type, eImmediateRecursive)
+{
+    // nothing to do
+}
+
+ImmediateRecursiveFunction::~ImmediateRecursiveFunction()
 {
     // nothing to do
 }

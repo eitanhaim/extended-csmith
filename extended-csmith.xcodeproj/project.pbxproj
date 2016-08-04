@@ -93,6 +93,7 @@
 		9459A0DC1D5224AC00331859 /* MutuallyRecursiveFunction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9459A0DB1D5224AC00331859 /* MutuallyRecursiveFunction.cpp */; };
 		9459A0DF1D522B3600331859 /* RecursiveFactMgr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9459A0DE1D522B3600331859 /* RecursiveFactMgr.cpp */; };
 		9459A0E21D522C3300331859 /* RecursiveCGContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9459A0E11D522C3300331859 /* RecursiveCGContext.cpp */; };
+		9459A0EB1D53B28400331859 /* RecursiveBlock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9459A0EA1D53B28400331859 /* RecursiveBlock.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -426,6 +427,8 @@
 		9459A0DE1D522B3600331859 /* RecursiveFactMgr.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RecursiveFactMgr.cpp; sourceTree = "<group>"; };
 		9459A0E01D522BCE00331859 /* RecursiveCGContext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RecursiveCGContext.h; sourceTree = "<group>"; };
 		9459A0E11D522C3300331859 /* RecursiveCGContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RecursiveCGContext.cpp; sourceTree = "<group>"; };
+		9459A0E91D53B27100331859 /* RecursiveBlock.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RecursiveBlock.h; sourceTree = "<group>"; };
+		9459A0EA1D53B28400331859 /* RecursiveBlock.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RecursiveBlock.cpp; sourceTree = "<group>"; };
 		94C3CE421D4904E50001B91B /* platform.info */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = platform.info; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -503,6 +506,8 @@
 				9447476F1CF0EF2C00067E76 /* ArrayVariable.h */,
 				944747701CF0EF2C00067E76 /* Block.cpp */,
 				944747711CF0EF2C00067E76 /* Block.h */,
+				9459A0EA1D53B28400331859 /* RecursiveBlock.cpp */,
+				9459A0E91D53B27100331859 /* RecursiveBlock.h */,
 				944747721CF0EF2C00067E76 /* Bookkeeper.cpp */,
 				944747731CF0EF2C00067E76 /* Bookkeeper.h */,
 				944747741CF0EF2C00067E76 /* CFGEdge.cpp */,
@@ -928,6 +933,7 @@
 				944748701CF0EF2C00067E76 /* ExpressionVariable.cpp in Sources */,
 				944748561CF0EF2C00067E76 /* AbsRndNumGenerator.cpp in Sources */,
 				9447487C1CF0EF2C00067E76 /* FunctionInvocationUnary.cpp in Sources */,
+				9459A0EB1D53B28400331859 /* RecursiveBlock.cpp in Sources */,
 				944748951CF0EF2C00067E76 /* StatementBreak.cpp in Sources */,
 				944748721CF0EF2C00067E76 /* ExtensionValue.cpp in Sources */,
 				944748591CF0EF2C00067E76 /* Bookkeeper.cpp in Sources */,

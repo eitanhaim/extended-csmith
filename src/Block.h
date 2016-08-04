@@ -136,6 +136,8 @@ private:
 };
 
 Block* find_block_by_id(int blk_id);
+static unsigned int BlockProbability(Block &block);
+
 ///////////////////////////////////////////////////////////////////////////////
 
 #endif // BLOCK_H
