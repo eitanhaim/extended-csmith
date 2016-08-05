@@ -200,6 +200,8 @@ DEFINE_GETTER_SETTER_BOOL(lang_cpp);
 // ****************************** ExtendedCsmith ****************************** >>
 DEFINE_GETTER_SETTER_BOOL(immediate_recursion);
 DEFINE_GETTER_SETTER_BOOL(mutual_recursion);
+DEFINE_GETTER_SETTER_INT (max_fact_sets_in_inclusive_fact_set);
+DEFINE_GETTER_SETTER_INT (max_funcs_in_recursive_call_cycle);
 // **************************************************************************** <<
 
 void
@@ -313,6 +315,8 @@ CGOptions::set_default_settings(void)
     // ****************************** ExtendedCsmith ****************************** >>
     immediate_recursion(false);
     mutual_recursion(false);
+    max_fact_sets_in_inclusive_fact_set(CGOPTIONS_DEFAULT_MAX_FACT_SETS_IN_INCLUSIVE_FACT_SET);
+    max_funcs_in_recursive_call_cycle(CGOPTIONS_DEFAULT_MAX_FUNCS_IN_RECURSIVE_CALL_CYCLE);
     // **************************************************************************** <<
 
 	set_default_builtin_kinds();
@@ -502,6 +506,33 @@ CGOptions::allow_int64()
 			CGOptions::longlong());
 }
 
+// ****************************** ExtendedCsmith ****************************** >>
+bool
+CGOptions::has_recursion_conflict()
+{
+    if (!CGOptions::recursion())
+        return false;
+
+    if (CGOptions::max_fact_sets_in_inclusive_fact_set() < 1) {
+        conflict_msg_ = "max-fact-sets-in-inclusive-fact-set must be at least 1";
+        return true;
+    }
+    
+    if (CGOptions::max_funcs_in_recursive_call_cycle() < 1) {
+        conflict_msg_ = "max-funcs-in-recursive-call-cycle must be at least 1";
+        return true;
+    }
+    
+    if (CGOptions::max_funcs_in_recursive_call_cycle() > CGOptions::max_funcs()) {
+        conflict_msg_ = "max-funcs-in-recursive-call-cycle cannot be larger than max-funcs";
+        return true;
+    }
+
+
+    return false;
+}
+// **************************************************************************** <<
+
 bool
 CGOptions::has_conflict(void)
 {
@@ -583,6 +614,11 @@ CGOptions::has_conflict(void)
 		}
 	}
 #endif
+    
+    // ****************************** ExtendedCsmith ****************************** >>
+    if (CGOptions::has_recursion_conflict())
+        return true;
+    // **************************************************************************** <<
 
 	return false;
 }

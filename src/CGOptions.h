@@ -65,6 +65,11 @@ using namespace std;
 #define CGOPTIONS_DEFAULT_OUTPUT_FILE		("")
 #define PLATFORM_CONFIG_FILE                ("platform.info")
 
+// ****************************** ExtendedCsmith ****************************** >>
+#define CGOPTIONS_DEFAULT_MAX_FACT_SETS_IN_INCLUSIVE_FACT_SET (5)
+#define CGOPTIONS_DEFAULT_MAX_FUNCS_IN_RECURSIVE_CALL_CYCLE (4)
+// **************************************************************************** <<
+
 /**
  * ---------------------------- ExtendedCsmith Doc ----------------------------
  * A class holding the states of all of the options provided by Csmith.
@@ -369,6 +374,12 @@ public:
     static bool mutual_recursion(bool p);
     
     static bool recursion(void) { return immediate_recursion() || mutual_recursion(); }
+    
+    static int max_fact_sets_in_inclusive_fact_set(void);
+    static int max_fact_sets_in_inclusive_fact_set(int p);
+    
+    static int max_funcs_in_recursive_call_cycle(void);
+    static int max_funcs_in_recursive_call_cycle(int p);
     // **************************************************************************** <<
 
 	/////////////////////////////////////////////////////////
@@ -479,6 +490,10 @@ private:
 	static bool has_extension_conflict();
 
 	static void parse_string_options(string vname, vector<std::string> &v);
+    
+    // ****************************** ExtendedCsmith ****************************** >>
+    static bool has_recursion_conflict();
+    // **************************************************************************** <<
 
 	// Until I do this right, just make them all static.
 	static bool	compute_hash_;
@@ -613,6 +628,8 @@ private:
     // ****************************** ExtendedCsmith ****************************** >>
     static bool immediate_recursion_;
     static bool mutual_recursion_;
+    static int max_fact_sets_in_inclusive_fact_set_;
+    static int max_funcs_in_recursive_call_cycle_;
     // **************************************************************************** <<
 private:
 	CGOptions(void);

@@ -55,7 +55,8 @@ RecursiveBlock::make_random(RecursiveCGContext& rec_cg_context)
     
     // choose a random number in the range 0...(max_block_size - 1),
     // representing the actual size of this block
-    unsigned int max = BlockProbability(*b);
+    //unsigned int max = BlockProbability(*b);
+    unsigned int max = 3;
     if (Error::get_error() != SUCCESS) {
         curr_func->stack.pop_back();
         delete b;

@@ -205,6 +205,8 @@ static void print_help()
     // ****************************** ExtendedCsmith ****************************** >>
     cout << "  --immediate-recursion | --no-immediate-recursion: enable | disable to generate immediate recursive functions (disabled by default)." << endl << endl;
     cout << "  --mutual-recursion | --no-mutual-recursion: enable | disable to generate mutually recursive functions (disabled by default)." << endl << endl;
+    cout << "  --max-fact-sets-in-inclusive-fact-set <num>: limit the number of fact sets in inclusive fact set to <num> (default 5)." << endl << endl;
+    cout << "  --max-funcs-in-recursive-call-cycle <num>: limit the number of functions in recursive call cycle to <num>  (default 4)." << endl << endl;
     // **************************************************************************** <<
 }
 
@@ -1409,6 +1411,26 @@ main(int argc, char **argv)
         
         if (strcmp (argv[i], "--no-mutual_recursion") == 0) {
             CGOptions::mutual_recursion(false);
+            continue;
+        }
+        
+        if (strcmp (argv[i], "--max-fact-sets-in-inclusive-fact-set") == 0 ) {
+            unsigned long ret;
+            i++;
+            arg_check(argc, i);
+            if (!parse_int_arg(argv[i], &ret))
+                exit(-1);
+            CGOptions::max_fact_sets_in_inclusive_fact_set(ret);
+            continue;
+        }
+        
+        if (strcmp (argv[i], "--max-funcs-in-recursive-call-cycle") == 0 ) {
+            unsigned long ret;
+            i++;
+            arg_check(argc, i);
+            if (!parse_int_arg(argv[i], &ret))
+                exit(-1);
+            CGOptions::max_funcs_in_recursive_call_cycle(ret);
             continue;
         }
         // **************************************************************************** <<
