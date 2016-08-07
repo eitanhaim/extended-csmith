@@ -24,6 +24,9 @@ public:
     /** Returns whether this function is the first one in its recursive call cycle. */
     bool is_first() { return !prev_func; }
     
+    // the maximum number of functions in a recursive call cycle
+    static const int max_funcs_in_recursive_call_cycle;
+    
 private:
     // the previous function in the corresponding recursive call cycle
     MutuallyRecursiveFunction* prev_func;

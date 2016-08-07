@@ -14,7 +14,8 @@
 
 RecursiveCGContext::RecursiveCGContext(CGContext* cg_context)
     : curr_cg_context(cg_context),
-      func(cg_context->get_current_func())
+      func(cg_context->get_current_func()),
+      num_cg_contexts(CGOptions::max_fact_sets_in_inclusive_fact_set())
 {
     map_cg_contexts[cg_context->call_chain] = cg_context;
 }

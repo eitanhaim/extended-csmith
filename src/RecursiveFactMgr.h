@@ -38,6 +38,9 @@ private:
     // the fact manager for the current call chain
     FactMgr* curr_fact_mgr;
     
+    // the number of fact managers in this recursive fact manager
+    const int num_fact_mgrs;
+    
     // the current function being analyzed
     const Function* func;
 };

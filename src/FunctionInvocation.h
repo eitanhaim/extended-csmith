@@ -170,7 +170,7 @@ public:
 	virtual void indented_output(std::ostream &out, int indent) const = 0;
 
 	virtual bool safe_invocation() const = 0;
-
+    
 	eInvocationType invoke_type;
 
 	std::vector<const Expression*> param_value;

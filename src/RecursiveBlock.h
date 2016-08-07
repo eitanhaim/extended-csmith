@@ -22,13 +22,15 @@ public:
     
     virtual ~RecursiveBlock(void);
     
-    // Factory method
-    static RecursiveBlock *make_random(RecursiveCGContext& rec_cg_context);
+    int get_actual_block_size() { return actual_block_size; }
     
-    //void add_back_return_facts(FactMgr* fm, std::vector<const Fact*>& facts) const;
+    // factory method
+    static RecursiveBlock *make_random(RecursiveCGContext& rec_cg_context);
+        
+    void add_back_return_facts(FactMgr* fm, std::vector<const Fact*>& facts) const;
     
 private:
-    
+    int actual_block_size;
 };
 
 #endif /* RecursiveBlock_h */

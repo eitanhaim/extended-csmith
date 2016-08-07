@@ -205,8 +205,8 @@ static void print_help()
     // ****************************** ExtendedCsmith ****************************** >>
     cout << "  --immediate-recursion | --no-immediate-recursion: enable | disable to generate immediate recursive functions (disabled by default)." << endl << endl;
     cout << "  --mutual-recursion | --no-mutual-recursion: enable | disable to generate mutually recursive functions (disabled by default)." << endl << endl;
-    cout << "  --max-fact-sets-in-inclusive-fact-set <num>: limit the number of fact sets in inclusive fact set to <num> (default 5)." << endl << endl;
-    cout << "  --max-funcs-in-recursive-call-cycle <num>: limit the number of functions in recursive call cycle to <num>  (default 4)." << endl << endl;
+    cout << "  --max-fact-sets-in-inclusive-fact-set <num>: limit the number of fact sets in an inclusive fact set to <num> (default 5)." << endl << endl;
+    cout << "  --max-funcs-in-recursive-call-cycle <num>: limit the number of functions in a recursive call cycle to <num>  (default 4)." << endl << endl;
     // **************************************************************************** <<
 }
 

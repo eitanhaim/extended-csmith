@@ -67,6 +67,32 @@ StatementExpr::make_random(CGContext &cg_context)
 	return new StatementExpr(cg_context.get_current_block(), *invoke);
 }
 
+// ****************************** ExtendedCsmith ****************************** >>
+/**
+ * Generates a random Call-statement which is a recursive function call.
+ * The recursion type of the recursive call depends on the recursion type of the current function.
+ */
+StatementExpr *
+StatementExpr::make_random_recursive(CGContext &cg_context)
+{ 
+    DEPTH_GUARD_BY_TYPE_RETURN(dtStatementExpr, NULL);
+    FunctionInvocationUser *invoke;
+    // make copies
+    Effect pre_effect = cg_context.get_accum_effect();
+    FactMgr* fm = get_fact_mgr(&cg_context);
+    vector<const Fact*> facts_copy = fm->global_facts;
+    invoke = FunctionInvocationUser::make_random_recursive(cg_context, 0, 0);
+    ERROR_GUARD(NULL);
+    if (invoke->failed) {
+        cg_context.reset_effect_accum(pre_effect);
+        fm->restore_facts(facts_copy);
+        delete invoke;
+        return 0;
+    }
+    return new StatementExpr(cg_context.get_current_block(), *invoke);
+}
+// **************************************************************************** <<
+
 /*
  *
  */

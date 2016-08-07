@@ -439,7 +439,16 @@ StatementFor::visit_facts(vector<const Fact*>& inputs, CGContext& cg_context) co
 	// remove IV from context
 	cg_context.iv_bounds.erase(iv);
 	return true;
-} 
+}
+
+// ****************************** ExtendedCsmith ****************************** >>
+/** Returns whether this statement contains Return-statement. */
+bool
+StatementFor::contains_return(void) const
+{
+    return body.contains_return();
+}
+// **************************************************************************** <<
 
 ///////////////////////////////////////////////////////////////////////////////
 

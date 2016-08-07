@@ -101,6 +101,40 @@ StatementIf::make_random(CGContext &cg_context)
     return si;
 }
 
+// ****************************** ExtendedCsmith ****************************** >>
+/**
+ * Generates a random If-statement, in which the true-block contains a random Return-statement,
+ * and the false-block contains a statement containing a recursive function call.
+ * The recursion type of the recursive call depends on the recursion type of the current function.
+ */
+StatementIf *
+StatementIf::make_random_recursive(CGContext &cg_context)
+{
+    DEPTH_GUARD_BY_TYPE_RETURN(dtStatementIf, NULL);
+    FactMgr* fm = get_fact_mgr(&cg_context);
+    cg_context.get_effect_stm().clear();
+    Expression *expr = Expression::make_random(cg_context, get_int_type(), NULL, false, !CGOptions::const_as_condition());
+    ERROR_GUARD(NULL);
+    Effect eff = cg_context.get_effect_stm();
+    
+    // this will save global_facts to map_facts_in[if_true], and update
+    // facts for new variables created while generating if_true
+    Block *if_true = Block::make_random_recursive(cg_context, true);
+    ERROR_GUARD_AND_DEL1(NULL, expr);
+    
+    // generate false branch with the same env as true branch
+    fm->global_facts = fm->map_facts_in[if_true];
+    Block *if_false = Block::make_random_recursive(cg_context, false);
+    ERROR_GUARD_AND_DEL2(NULL, expr, if_true);
+    
+    StatementIf* si = new StatementIf(cg_context.get_current_block(), *expr, *if_true, *if_false);
+    // compute accumulated effect for this statement
+    si->set_accumulated_effect_after_block(eff, if_true, cg_context);
+    si->set_accumulated_effect_after_block(eff, if_false, cg_context);
+    return si;
+}
+// **************************************************************************** <<
+
 /*
  *
  */
@@ -250,6 +284,15 @@ StatementIf::combine_branch_facts(vector<const Fact*>& pre_facts) const
 		merge_facts(outputs, fm->map_facts_out[&if_false]);
 	}
 }
+
+// ****************************** ExtendedCsmith ****************************** >>
+/** Returns whether this statement contains Return-statement. */
+bool
+StatementIf::contains_return(void) const
+{
+    return if_true.contains_return() || if_false.contains_return();
+}
+// **************************************************************************** <<
 
 ///////////////////////////////////////////////////////////////////////////////
 

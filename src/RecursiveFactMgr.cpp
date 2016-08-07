@@ -14,7 +14,8 @@
 
 RecursiveFactMgr::RecursiveFactMgr(vector<const Block*> call_chain, FactMgr* fact_mgr)
     : curr_fact_mgr(fact_mgr),
-      func(fact_mgr->func)
+      func(fact_mgr->func),
+      num_fact_mgrs(CGOptions::max_fact_sets_in_inclusive_fact_set())
 {
     map_fact_mgrs[call_chain] = fact_mgr;
 }

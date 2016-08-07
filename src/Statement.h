@@ -171,6 +171,11 @@ public:
 	void post_output(std::ostream &out, FactMgr* fm=0, int indent = 0) const;
 
 	void output_with_assert(std::ostream &out);
+    
+    // ****************************** ExtendedCsmith ****************************** >>
+    static Statement *make_random_recursive(CGContext &cg_context);
+    virtual bool contains_return(void) const {return false;}
+    // **************************************************************************** <<
 
 	const eStatementType eType;
 

@@ -319,6 +319,43 @@ FunctionInvocationUser::build_invocation(Function *target, CGContext &cg_context
 	return !failed; 
 }
 
+// ****************************** ExtendedCsmith ****************************** >>
+/**
+ * Generates a recursive function call.
+ * The recursion type of the recursive call depends on the recursion type of the current function.
+ */
+FunctionInvocationUser*
+FunctionInvocationUser::make_random_recursive(CGContext &cg_context, const Type* type, const CVQualifiers* qfer)
+{ // TODO: continue!!
+    FunctionInvocationUser *fi = 0;
+    // If we are looking for a program-defined function, try to find one.
+    Function* callee = NULL;
+    if (pure_rnd_flipcoin(50)) {
+        callee = Function::choose_func(get_all_functions(), cg_context, type, qfer);
+    }
+    if (callee != NULL) {
+        FunctionInvocationUser *fiu = new FunctionInvocationUser(callee, true, NULL);
+        fiu->build_invocation(callee, cg_context);
+        fi = fiu;
+        if (!fiu->failed) {
+            cg_context.get_current_func()->fact_changed |= fiu->func->fact_changed;
+        }
+    }
+    else if (!Function::reach_max_functions_cnt()) {
+        fi = FunctionInvocationUser::build_invocation_and_function(cg_context, type, qfer);
+    } else {
+        // we can not find/create a function because we reach the limit, so give up
+        fi = new FunctionInvocationUser(NULL, false, NULL);
+        fi->failed = true;
+        return fi;
+    }
+
+    assert(fi != 0);
+    return fi;
+
+}
+// **************************************************************************** <<
+
 /*
  * return true if the invocation is valid (not violating fixed facts), false other wise
  *

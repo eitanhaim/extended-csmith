@@ -70,6 +70,10 @@ public:
 	virtual void get_exprs(std::vector<const Expression*>& exps) const {exps.push_back(&expr);}
 
 	virtual void Output(std::ostream &out, FactMgr* fm, int indent = 0) const;
+    
+    // ****************************** ExtendedCsmith ****************************** >>
+    static StatementExpr *make_random_recursive(CGContext &cg_context);
+    // **************************************************************************** <<
 
 private:
 	const ExpressionFuncall expr;

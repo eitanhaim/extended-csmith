@@ -8,6 +8,9 @@
 //
 
 #include "MutuallyRecursiveFunction.h"
+//#include "CGOptions.h"
+
+const int MutuallyRecursiveFunction::max_funcs_in_recursive_call_cycle = CGOptions::max_funcs_in_recursive_call_cycle();
 
 MutuallyRecursiveFunction::MutuallyRecursiveFunction(const std::string &name, const Type *return_type)
 : Function(name, return_type, eMutuallyRecursive)

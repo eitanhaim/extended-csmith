@@ -336,7 +336,17 @@ StatementArrayOp::visit_facts(vector<const Fact*>& inputs, CGContext& cg_context
 		fm->map_stm_effect[this] = cg_context.get_effect_stm();
 	} 
 	return true;
-} 
+}
+
+// ****************************** ExtendedCsmith ****************************** >>
+/** Returns whether this statement contains Return-statement. */
+bool
+StatementArrayOp::contains_return(void) const
+{
+    return body->contains_return();
+    
+}
+// **************************************************************************** <<
 
 ///////////////////////////////////////////////////////////////////////////////
 

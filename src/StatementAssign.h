@@ -127,9 +127,17 @@ public:
 	virtual void OutputAsExpr(std::ostream &out) const;
 
 	void OutputSimple(std::ostream &out) const;
+    
+    // ****************************** ExtendedCsmith ****************************** >>
+    static StatementAssign *make_random_recursive(CGContext &cg_context);
+    // **************************************************************************** <<
 
 private:
 	static eAssignOps AssignOpsProbability(const Type* type);
+    
+    // ****************************** ExtendedCsmith ****************************** >>
+    static eAssignOps AssignOpsProbabilityForRec(const Type* type);
+    // **************************************************************************** <<
 
 	const eAssignOps op;
 	const Lhs   &lhs;

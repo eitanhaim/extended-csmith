@@ -311,7 +311,45 @@ Statement::make_random(CGContext &cg_context,
 	return s;
 } 
 
-std::vector<const ExpressionVariable*> 
+// ****************************** ExtendedCsmith ****************************** >>
+/**
+ * Generates a random statement (either Assign-statemnt or Call-statement),
+ * containing a recursive function call.
+ * The recursion type of the recursive call depends on the recursion type of the current function.
+ */
+Statement *
+Statement::make_random_recursive(CGContext &cg_context)
+{
+    DEPTH_GUARD_BY_TYPE_RETURN_WITH_FLAG(dtStatement, MAX_STATEMENT_TYPE, NULL);
+    
+    FactMgr* fm = get_fact_mgr(&cg_context);
+    FactVec pre_facts = fm->global_facts;
+    Effect pre_effect = cg_context.get_accum_effect();
+    cg_context.get_effect_stm().clear();
+    cg_context.expr_depth = 0;
+
+    Statement *s = 0;
+    
+    if (pure_rnd_flipcoin(50))
+        s = StatementAssign::make_random_recursive(cg_context);
+    else
+        s = StatementExpr::make_random_recursive(cg_context);
+    
+    ERROR_GUARD(NULL);
+    
+    // sometimes make_random_recursive may return 0 for various reasons. keep generating
+    if (s == 0) {
+        return make_random_recursive(cg_context);
+    }
+    
+    s->func = cg_context.get_current_func(); 
+    s->parent = cg_context.get_current_block();
+    s->post_creation_analysis(pre_facts, pre_effect, cg_context);
+    return s;
+}
+// **************************************************************************** <<
+
+std::vector<const ExpressionVariable*>
 Statement::get_dereferenced_ptrs(void) const
 {
 	// return a empty vector by default

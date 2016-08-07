@@ -119,6 +119,11 @@ public:
 	bool need_revisit;
 
 	std::vector<const Statement*> break_stms;
+    
+    // ****************************** ExtendedCsmith ****************************** >>
+    static Block *make_random_recursive(CGContext &cg_context, bool is_stmt_return);
+    virtual bool contains_return(void) const;
+    // **************************************************************************** <<
 
 private:
 	
@@ -136,7 +141,7 @@ private:
 };
 
 Block* find_block_by_id(int blk_id);
-//static unsigned int BlockProbability(Block &block);
+unsigned int BlockProbability(Block &block);
 
 ///////////////////////////////////////////////////////////////////////////////
 

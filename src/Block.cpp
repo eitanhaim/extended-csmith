@@ -60,6 +60,10 @@
 #include "Expression.h"
 #include "VectorFilter.h"
 
+// ****************************** ExtendedCsmith ****************************** >>
+#include "StatementReturn.h"
+// **************************************************************************** <<
+
 using namespace std;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -83,7 +87,7 @@ Block* find_block_by_id(int blk_id)
 /*
  *
  */
-static unsigned int
+unsigned int                    // ExtendedCsmith Edit
 BlockProbability(Block &block)
 {
 	vector<unsigned int> v;
@@ -141,8 +145,7 @@ Block::make_random(CGContext &cg_context, bool looping)
 	fm->set_fact_in(b, fm->global_facts);
 	Effect pre_effect = cg_context.get_accum_effect();
 
-    // ExtendedCsmith Doc: choose a random number in the range 0...(max_block_size - 1),
-    // representing the actual size of this block
+    // ExtendedCsmith Doc: choose the maximum size of this block (minus one)
 	unsigned int max = BlockProbability(*b);
 	if (Error::get_error() != SUCCESS) {
 		curr_func->stack.pop_back();
@@ -195,6 +198,65 @@ Block::make_random(CGContext &cg_context, bool looping)
 	Error::set_error(SUCCESS); 
 	return b;
 }
+
+// ****************************** ExtendedCsmith ****************************** >>
+/**
+ * Generates a block containing a single statement, either a random Return-statement,
+ * or a statement containing a recursive function call, depending on the given flag.
+ * The recursion type of the recursive call depends on the recursion type of the current function.
+ */
+Block *
+Block::make_random_recursive(CGContext &cg_context, bool is_stmt_return)
+{
+    DEPTH_GUARD_BY_TYPE_RETURN(dtBlock, NULL);
+    Function *curr_func = cg_context.get_current_func();
+    assert(curr_func);
+    
+    Block *b = new Block(cg_context.get_current_block(), CGOptions::max_block_size());
+    b->func = curr_func;
+    b->looping = false;
+    b->in_array_loop = false;
+    
+    // Push this block onto the variable scope stack.
+    curr_func->stack.push_back(b);
+    curr_func->blocks.push_back(b);
+    
+    // record global facts at this moment so that subsequent statement
+    // inside the block doesn't ruin it
+    FactMgr* fm = get_fact_mgr_for_func(curr_func);
+    fm->set_fact_in(b, fm->global_facts);
+    Effect pre_effect = cg_context.get_accum_effect();
+    
+    if (is_stmt_return)
+        b->stms.push_back(StatementReturn::make_random(cg_context));
+    else
+        b->stms.push_back(Statement::make_random_recursive(cg_context));
+    
+    if (Error::get_error() != SUCCESS) {
+        curr_func->stack.pop_back();
+        delete b;
+        return NULL;
+    }
+    
+    // perform DFA analysis after creation
+    b->post_creation_analysis(cg_context, pre_effect);
+    
+    if (Error::get_error() != SUCCESS) {
+        curr_func->stack.pop_back();
+        delete b;
+        return NULL;
+    }
+    
+    curr_func->stack.pop_back();
+    if (Error::get_error() != SUCCESS) {
+        delete b;
+        return NULL;
+    }
+    
+    Error::set_error(SUCCESS);
+    return b;
+}
+// **************************************************************************** <<
 
 /*
  *
@@ -798,7 +860,24 @@ Block::post_creation_analysis(CGContext& cg_context, const Effect& pre_effect)
 		fm->set_fact_out(this, fm->map_facts_out[sr]);
 	}
 }
-	
+
+// ****************************** ExtendedCsmith ****************************** >>
+/** Returns whether this block contains Return-statement. */
+bool
+Block::contains_return(void) const
+{
+    for (size_t i=0; i<stms.size(); i++) {
+        Statement* s = stms[i];
+        if (s->contains_return()) {
+            return true;
+        }
+        
+    }
+    return false;
+
+}
+// **************************************************************************** <<
+
 ///////////////////////////////////////////////////////////////////////////////
 
 // Local Variables:

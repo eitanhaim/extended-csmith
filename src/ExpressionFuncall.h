@@ -86,6 +86,10 @@ public:
 	
 	void Output(std::ostream &) const;
 	virtual void indented_output(std::ostream &out, int indent) const;
+    
+    // ****************************** ExtendedCsmith ****************************** >>
+    static Expression *make_random_recursive(CGContext &cg_context, const Type* type, const CVQualifiers* qfer=0);
+    // **************************************************************************** <<
 
 private:
 	const FunctionInvocation &invoke;

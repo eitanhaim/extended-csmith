@@ -35,6 +35,9 @@ private:
     // maps call chains to contexts
     map<vector<const Block*>, CGContext*> map_cg_contexts;
     
+    // the number of contexts in this recursive context
+    const int num_cg_contexts;
+    
     // the context for the current call chain
     CGContext* curr_cg_context;
     

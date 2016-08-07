@@ -76,6 +76,10 @@ public:
 	virtual bool visit_facts(vector<const Fact*>& inputs, CGContext& cg_context) const;
 
 	virtual void Output(std::ostream &out, FactMgr* fm, int indent = 0) const;
+    
+    // ****************************** ExtendedCsmith ****************************** >>
+    virtual bool contains_return(void) const;
+    // **************************************************************************** <<
 
 private:
 	// XXX --- `init' and `incr' have the "wrong types."  Should be exprs.

@@ -68,7 +68,11 @@ public:
 
 	virtual bool visit_facts(vector<const Fact*>& inputs, CGContext& cg_context) const;
 
-    const ExpressionVariable* get_var(void) const { return &var;}; 
+    const ExpressionVariable* get_var(void) const { return &var;};
+    
+    // ****************************** ExtendedCsmith ****************************** >>
+    virtual bool contains_return(void) const { return true; }
+    // **************************************************************************** <<
 
 private:
 	const ExpressionVariable &var;  
