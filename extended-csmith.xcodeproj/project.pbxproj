@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		94326A911D579B3D00503DD1 /* ImmediateRecursiveCall.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 94326A901D579B3D00503DD1 /* ImmediateRecursiveCall.cpp */; };
+		94326A941D579B9900503DD1 /* MutuallyRecursiveCall.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 94326A931D579B9900503DD1 /* MutuallyRecursiveCall.cpp */; };
 		944748541CF0EF2C00067E76 /* AbsExtension.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 944747681CF0EF2C00067E76 /* AbsExtension.cpp */; };
 		944748551CF0EF2C00067E76 /* AbsProgramGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9447476A1CF0EF2C00067E76 /* AbsProgramGenerator.cpp */; };
 		944748561CF0EF2C00067E76 /* AbsRndNumGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9447476C1CF0EF2C00067E76 /* AbsRndNumGenerator.cpp */; };
@@ -110,6 +112,10 @@
 
 /* Begin PBXFileReference section */
 		942EB6FC1CF0EC8500D1F30B /* extended-csmith */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "extended-csmith"; sourceTree = BUILT_PRODUCTS_DIR; };
+		94326A8F1D579B1500503DD1 /* ImmediateRecursiveCall.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ImmediateRecursiveCall.h; sourceTree = "<group>"; };
+		94326A901D579B3D00503DD1 /* ImmediateRecursiveCall.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ImmediateRecursiveCall.cpp; sourceTree = "<group>"; };
+		94326A921D579B7400503DD1 /* MutuallyRecursiveCall.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MutuallyRecursiveCall.h; sourceTree = "<group>"; };
+		94326A931D579B9900503DD1 /* MutuallyRecursiveCall.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MutuallyRecursiveCall.cpp; sourceTree = "<group>"; };
 		944747151CF0EF2C00067E76 /* version.m4 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = version.m4; sourceTree = "<group>"; };
 		944747161CF0EF2C00067E76 /* TODO */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TODO; sourceTree = "<group>"; };
 		944747181CF0EF2C00067E76 /* platform.info */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = platform.info; sourceTree = "<group>"; };
@@ -595,6 +601,10 @@
 				944747BE1CF0EF2C00067E76 /* FunctionInvocationUnary.h */,
 				944747BF1CF0EF2C00067E76 /* FunctionInvocationUser.cpp */,
 				944747C01CF0EF2C00067E76 /* FunctionInvocationUser.h */,
+				94326A901D579B3D00503DD1 /* ImmediateRecursiveCall.cpp */,
+				94326A8F1D579B1500503DD1 /* ImmediateRecursiveCall.h */,
+				94326A931D579B9900503DD1 /* MutuallyRecursiveCall.cpp */,
+				94326A921D579B7400503DD1 /* MutuallyRecursiveCall.h */,
 				944747C11CF0EF2C00067E76 /* KleeExtension.cpp */,
 				944747C21CF0EF2C00067E76 /* KleeExtension.h */,
 				944747C31CF0EF2C00067E76 /* Lhs.cpp */,
@@ -912,6 +922,7 @@
 				9447488F1CF0EF2C00067E76 /* SimpleDeltaRndNumGenerator.cpp in Sources */,
 				944748631CF0EF2C00067E76 /* DefaultProgramGenerator.cpp in Sources */,
 				9447486A1CF0EF2C00067E76 /* Effect.cpp in Sources */,
+				94326A911D579B3D00503DD1 /* ImmediateRecursiveCall.cpp in Sources */,
 				944748921CF0EF2C00067E76 /* Statement.cpp in Sources */,
 				944748A71CF0EF2C00067E76 /* lrand48.c in Sources */,
 				944748841CF0EF2C00067E76 /* PartialExpander.cpp in Sources */,
@@ -931,6 +942,7 @@
 				944748801CF0EF2C00067E76 /* LinearSequence.cpp in Sources */,
 				9459A0DF1D522B3600331859 /* RecursiveFactMgr.cpp in Sources */,
 				944748701CF0EF2C00067E76 /* ExpressionVariable.cpp in Sources */,
+				94326A941D579B9900503DD1 /* MutuallyRecursiveCall.cpp in Sources */,
 				944748561CF0EF2C00067E76 /* AbsRndNumGenerator.cpp in Sources */,
 				9447487C1CF0EF2C00067E76 /* FunctionInvocationUnary.cpp in Sources */,
 				9459A0EB1D53B28400331859 /* RecursiveBlock.cpp in Sources */,

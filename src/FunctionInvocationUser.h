@@ -111,7 +111,7 @@ private:
 	bool isBackLink;
     
     // ****************************** ExtendedCsmith ****************************** >>
-    eFuncCallType call_type;
+    const eFuncCallType call_type;
     // **************************************************************************** <<
 
 private:

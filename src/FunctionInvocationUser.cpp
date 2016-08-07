@@ -167,7 +167,8 @@ FunctionInvocationUser::FunctionInvocationUser(Function *target, bool isBackLink
 FunctionInvocationUser::FunctionInvocationUser(const FunctionInvocationUser &fiu)
 	: FunctionInvocation(fiu),
 	  func(fiu.func),
-	  isBackLink(fiu.isBackLink)
+	  isBackLink(fiu.isBackLink),
+      call_type(fiu.call_type)         // ExtendedCsmith
 {
 }
 
@@ -326,20 +327,26 @@ FunctionInvocationUser::build_invocation(Function *target, CGContext &cg_context
  */
 FunctionInvocationUser*
 FunctionInvocationUser::make_random_recursive(CGContext &cg_context, const Type* type, const CVQualifiers* qfer)
-{ // TODO: continue!!
+{ 
+    
+    Function *func = cg_context.get_current_func();
+    eFunctionType func_type = func->func_type;
+
     FunctionInvocationUser *fi = 0;
-    // If we are looking for a program-defined function, try to find one.
     Function* callee = NULL;
-    if (pure_rnd_flipcoin(50)) {
-        callee = Function::choose_func(get_all_functions(), cg_context, type, qfer);
-    }
-    if (callee != NULL) {
-        FunctionInvocationUser *fiu = new FunctionInvocationUser(callee, true, NULL);
+    if (func_type == eImmediateRecursive) {
+        callee = func;
+        FunctionInvocationUser *fiu = new FunctionInvocationUser(callee, true, NULL, eImmediateRecursiveCall);
         fiu->build_invocation(callee, cg_context);
         fi = fiu;
         if (!fiu->failed) {
             cg_context.get_current_func()->fact_changed |= fiu->func->fact_changed;
         }
+    } else {
+        
+    }
+    
+    if (callee != NULL) {
     }
     else if (!Function::reach_max_functions_cnt()) {
         fi = FunctionInvocationUser::build_invocation_and_function(cg_context, type, qfer);
