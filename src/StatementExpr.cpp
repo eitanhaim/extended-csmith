@@ -40,6 +40,10 @@
 #include "Error.h"
 #include "DepthSpec.h"
 
+// ****************************** ExtendedCsmith ****************************** >>
+#include "RecursiveCGContext.h"
+// **************************************************************************** <<
+
 using namespace std;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -73,15 +77,16 @@ StatementExpr::make_random(CGContext &cg_context)
  * The recursion type of the recursive call depends on the recursion type of the current function.
  */
 StatementExpr *
-StatementExpr::make_random_recursive(CGContext &cg_context)
+StatementExpr::make_random_recursive(RecursiveCGContext &rec_cg_context)
 { 
     DEPTH_GUARD_BY_TYPE_RETURN(dtStatementExpr, NULL);
+    CGContext& cg_context = rec_cg_context.get_curr_cg_context();
     FunctionInvocationUser *invoke;
     // make copies
     Effect pre_effect = cg_context.get_accum_effect();
     FactMgr* fm = get_fact_mgr(&cg_context);
     vector<const Fact*> facts_copy = fm->global_facts;
-    invoke = FunctionInvocationUser::make_random_recursive(cg_context, 0, 0);
+    invoke = FunctionInvocationUser::make_random_recursive(rec_cg_context, 0, 0);
     ERROR_GUARD(NULL);
     if (invoke->failed) {
         cg_context.reset_effect_accum(pre_effect);

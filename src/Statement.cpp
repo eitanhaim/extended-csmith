@@ -80,6 +80,10 @@
 #include "StringUtils.h"
 #include "VariableSelector.h"
 
+// ****************************** ExtendedCsmith ****************************** >>
+#include "RecursiveCGContext.h"
+// **************************************************************************** <<
+
 using namespace std;
 const Statement* Statement::failed_stm;
 
@@ -318,10 +322,10 @@ Statement::make_random(CGContext &cg_context,
  * The recursion type of the recursive call depends on the recursion type of the current function.
  */
 Statement *
-Statement::make_random_recursive(CGContext &cg_context)
+Statement::make_random_recursive(RecursiveCGContext &rec_cg_context)
 {
     DEPTH_GUARD_BY_TYPE_RETURN_WITH_FLAG(dtStatement, MAX_STATEMENT_TYPE, NULL);
-    
+    CGContext& cg_context = rec_cg_context.get_curr_cg_context();
     FactMgr* fm = get_fact_mgr(&cg_context);
     FactVec pre_facts = fm->global_facts;
     Effect pre_effect = cg_context.get_accum_effect();
@@ -331,15 +335,15 @@ Statement::make_random_recursive(CGContext &cg_context)
     Statement *s = 0;
     
     if (pure_rnd_flipcoin(50))
-        s = StatementAssign::make_random_recursive(cg_context);
+        s = StatementAssign::make_random_recursive(rec_cg_context);
     else
-        s = StatementExpr::make_random_recursive(cg_context);
+        s = StatementExpr::make_random_recursive(rec_cg_context);
     
     ERROR_GUARD(NULL);
     
     // sometimes make_random_recursive may return 0 for various reasons. keep generating
     if (s == 0) {
-        return make_random_recursive(cg_context);
+        return make_random_recursive(rec_cg_context);
     }
     
     s->func = cg_context.get_current_func(); 

@@ -47,6 +47,10 @@
 #include "Block.h"
 #include "random.h"
 
+// ****************************** ExtendedCsmith ****************************** >>
+#include "RecursiveCGContext.h"
+// **************************************************************************** <<
+
 ///////////////////////////////////////////////////////////////////////////////
 
 /*
@@ -102,14 +106,15 @@ ExpressionFuncall::make_random(CGContext &cg_context, const Type* type, const CV
  * The recursion type of the recursive call depends on the recursion type of the current function.
  */
 Expression *
-ExpressionFuncall::make_random_recursive(CGContext &cg_context, const Type* type, const CVQualifiers* qfer)
+ExpressionFuncall::make_random_recursive(RecursiveCGContext &rec_cg_context, const Type* type, const CVQualifiers* qfer)
 {
     Expression *e = 0;
+    CGContext& cg_context = rec_cg_context.get_curr_cg_context();
     Effect effect_accum = cg_context.get_accum_effect();
     Effect effect_stm = cg_context.get_effect_stm();
     FactMgr* fm = get_fact_mgr(&cg_context);
     vector<const Fact*> facts_copy = fm->global_facts;
-    FunctionInvocation *fi = FunctionInvocationUser::make_random_recursive(cg_context, type, qfer);
+    FunctionInvocation *fi = FunctionInvocationUser::make_random_recursive(rec_cg_context, type, qfer);
     ERROR_GUARD(NULL);
     
     if (fi->failed) {

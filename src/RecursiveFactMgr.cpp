@@ -25,4 +25,11 @@ RecursiveFactMgr::~RecursiveFactMgr(void)
     // nothing to do
 }
 
+void
+RecursiveFactMgr::add_fact_mgr(vector<const Block*> call_chain, FactMgr* fact_mgr)
+{
+    map_fact_mgrs[call_chain] = fact_mgr;
+    curr_fact_mgr = fact_mgr;
+}
+
 // **************************************************************************** <<

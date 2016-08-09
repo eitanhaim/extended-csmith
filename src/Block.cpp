@@ -62,6 +62,7 @@
 
 // ****************************** ExtendedCsmith ****************************** >>
 #include "StatementReturn.h"
+#include "RecursiveCGContext.h"
 // **************************************************************************** <<
 
 using namespace std;
@@ -206,9 +207,10 @@ Block::make_random(CGContext &cg_context, bool looping)
  * The recursion type of the recursive call depends on the recursion type of the current function.
  */
 Block *
-Block::make_random_recursive(CGContext &cg_context, bool is_stmt_return)
+Block::make_random_recursive(RecursiveCGContext &rec_cg_context, bool is_stmt_return)
 {
     DEPTH_GUARD_BY_TYPE_RETURN(dtBlock, NULL);
+    CGContext& cg_context = rec_cg_context.get_curr_cg_context();
     Function *curr_func = cg_context.get_current_func();
     assert(curr_func);
     
@@ -230,7 +232,7 @@ Block::make_random_recursive(CGContext &cg_context, bool is_stmt_return)
     if (is_stmt_return)
         b->stms.push_back(StatementReturn::make_random(cg_context));
     else
-        b->stms.push_back(Statement::make_random_recursive(cg_context));
+        b->stms.push_back(Statement::make_random_recursive(rec_cg_context));
     
     if (Error::get_error() != SUCCESS) {
         curr_func->stack.pop_back();

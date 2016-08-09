@@ -52,8 +52,11 @@
 #include "CompatibleChecker.h"
 #include "Constant.h"
 #include "VectorFilter.h"
-
 #include "random.h"
+
+// ****************************** ExtendedCsmith ****************************** >>
+#include "RecursiveCGContext.h"
+// **************************************************************************** <<
 
 using namespace std;
 
@@ -248,8 +251,9 @@ StatementAssign::make_random(CGContext &cg_context, const Type* type, const CVQu
  * The recursion type of the recursive call depends on the recursion type of the current function.
  */
 StatementAssign *
-StatementAssign::make_random_recursive(CGContext &cg_context)
+StatementAssign::make_random_recursive(RecursiveCGContext &rec_cg_context)
 {
+    CGContext& cg_context = rec_cg_context.get_curr_cg_context();
     Function *func = cg_context.get_current_func();
     eFunctionType func_type = func->func_type;
     assert(func_type != eNonRecursive);
@@ -279,6 +283,8 @@ StatementAssign::make_random_recursive(CGContext &cg_context)
     Effect running_eff_context(cg_context.get_effect_context());
     Effect rhs_accum, lhs_accum;
     CGContext rhs_cg_context(cg_context, running_eff_context, &rhs_accum);
+    RecursiveCGContext rec_rhs_cg_context (&rhs_cg_context);
+
     CVQualifiers qfer;
     if (qf) qfer = *qf;
     
@@ -286,7 +292,7 @@ StatementAssign::make_random_recursive(CGContext &cg_context)
         if (type->is_volatile_struct_union())
             return NULL;
         
-        e = ExpressionFuncall::make_random_recursive(rhs_cg_context, type, qf);
+        e = ExpressionFuncall::make_random_recursive(rec_rhs_cg_context, type, qf);
         ERROR_GUARD_AND_DEL1(NULL, e);
         if (!qf) {
             qfer = e->get_qualifiers();
@@ -307,7 +313,7 @@ StatementAssign::make_random_recursive(CGContext &cg_context)
             qfer.set_volatile(false);
     }
     else {
-        e = ExpressionFuncall::make_random_recursive(rhs_cg_context, type, qf);
+        e = ExpressionFuncall::make_random_recursive(rec_rhs_cg_context, type, qf);
         ERROR_GUARD_AND_DEL1(NULL, e);
         if (!qf) {
             qfer = e->get_qualifiers();

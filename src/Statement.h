@@ -61,6 +61,11 @@ class Block;
 class Effect;
 class CFGEdge;
 
+// ****************************** ExtendedCsmith ****************************** >>
+class RecursiveCGContext;
+// **************************************************************************** <<
+
+
 template <class Key, class Value> 
 class ProbabilityTable;
 class StatementGoto;
@@ -173,7 +178,7 @@ public:
 	void output_with_assert(std::ostream &out);
     
     // ****************************** ExtendedCsmith ****************************** >>
-    static Statement *make_random_recursive(CGContext &cg_context);
+    static Statement *make_random_recursive(RecursiveCGContext &rec_cg_context);
     virtual bool contains_return(void) const {return false;}
     // **************************************************************************** <<
 

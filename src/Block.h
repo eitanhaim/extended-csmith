@@ -111,6 +111,8 @@ public:
 	void post_creation_analysis(CGContext& cg_context, const Effect& pre_effect);
 
 	size_t remove_stmt(const Statement* s);
+    
+    void set_accumulated_effect(CGContext& cg_context) const; // ExtendedCsmith Edit
 	
 	bool looping;
 
@@ -121,7 +123,7 @@ public:
 	std::vector<const Statement*> break_stms;
     
     // ****************************** ExtendedCsmith ****************************** >>
-    static Block *make_random_recursive(CGContext &cg_context, bool is_stmt_return);
+    static Block *make_random_recursive(RecursiveCGContext &rec_cg_context, bool is_stmt_return);
     virtual bool contains_return(void) const;
     // **************************************************************************** <<
 
@@ -131,8 +133,6 @@ private:
 
 	// maximum block size
 	const int block_size_;
-
-	void set_accumulated_effect(CGContext& cg_context) const;
 
 	//////////////////////////////////////////////////////////////
 	Block(const Block &b); // unimplemented

@@ -62,6 +62,12 @@
 #include "SafeOpFlags.h"
 #include "Error.h"
 
+// ****************************** ExtendedCsmith ****************************** >>
+#include "ImmediateRecursiveCall.h"
+#include "MutuallyRecursiveCall.h"
+#include "RecursiveCGContext.h"
+// **************************************************************************** <<
+
 using namespace std;
 
 static vector<bool> needcomma;  // Flag to track output of commas
@@ -326,21 +332,23 @@ FunctionInvocationUser::build_invocation(Function *target, CGContext &cg_context
  * The recursion type of the recursive call depends on the recursion type of the current function.
  */
 FunctionInvocationUser*
-FunctionInvocationUser::make_random_recursive(CGContext &cg_context, const Type* type, const CVQualifiers* qfer)
+FunctionInvocationUser::make_random_recursive(RecursiveCGContext &rec_cg_context,
+                                              const Type* type, const CVQualifiers* qfer)
 { 
     
+    CGContext& cg_context = rec_cg_context.get_curr_cg_context();
     Function *func = cg_context.get_current_func();
     eFunctionType func_type = func->func_type;
 
-    FunctionInvocationUser *fi = 0;
+    FunctionInvocationUser *fiu = 0;
     Function* callee = NULL;
     if (func_type == eImmediateRecursive) {
         callee = func;
-        FunctionInvocationUser *fiu = new FunctionInvocationUser(callee, true, NULL, eImmediateRecursiveCall);
-        fiu->build_invocation(callee, cg_context);
-        fi = fiu;
-        if (!fiu->failed) {
-            cg_context.get_current_func()->fact_changed |= fiu->func->fact_changed;
+        ImmediateRecursiveCall *ir_call = new ImmediateRecursiveCall(callee, true, NULL);
+        ir_call->build_invocation(rec_cg_context);
+        fiu = ir_call; // TODO: continue from here
+        if (!ir_call->failed) {
+            cg_context.get_current_func()->fact_changed |= ir_call->func->fact_changed;
         }
     } else {
         
@@ -349,16 +357,16 @@ FunctionInvocationUser::make_random_recursive(CGContext &cg_context, const Type*
     if (callee != NULL) {
     }
     else if (!Function::reach_max_functions_cnt()) {
-        fi = FunctionInvocationUser::build_invocation_and_function(cg_context, type, qfer);
+        fiu = FunctionInvocationUser::build_invocation_and_function(cg_context, type, qfer);
     } else {
         // we can not find/create a function because we reach the limit, so give up
-        fi = new FunctionInvocationUser(NULL, false, NULL);
-        fi->failed = true;
-        return fi;
+        fiu = new FunctionInvocationUser(NULL, false, NULL);
+        fiu->failed = true;
+        return fiu;
     }
 
-    assert(fi != 0);
-    return fi;
+    assert(fiu != 0);
+    return fiu;
 
 }
 // **************************************************************************** <<

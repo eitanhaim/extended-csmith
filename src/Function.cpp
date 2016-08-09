@@ -146,6 +146,28 @@ add_recursive_fact_mgr(RecursiveFactMgr* rfm)
     RFMList.push_back(rfm);
 }
 
+/**
+ * Finds the fact manager suitable for the given recursive function.
+ */
+RecursiveFactMgr*
+get_rec_fact_mgr_for_func(const Function* func)
+{
+    if (CGOptions::recursion() && func->is_recursive()) {
+        for (size_t i=0; i<RFMList.size(); i++) {
+            if (RFMList[i]->get_func() == func) {
+                return RFMList[i];
+            }
+        }
+    }
+    return 0;
+}
+
+RecursiveFactMgr*
+get_rec_fact_mgr(const RecursiveCGContext* rcg)
+{
+    return get_rec_fact_mgr_for_func(rcg->get_func());
+}
+
 // **************************************************************************** <<
 
 static vector<Function*> FuncList;              // List of all functions in the program

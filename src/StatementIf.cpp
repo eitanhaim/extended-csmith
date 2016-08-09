@@ -45,6 +45,10 @@
 #include "DepthSpec.h"
 #include "util.h"
 
+// ****************************** ExtendedCsmith ****************************** >>
+#include "RecursiveCGContext.h"
+// **************************************************************************** <<
+
 using namespace std;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -108,9 +112,10 @@ StatementIf::make_random(CGContext &cg_context)
  * The recursion type of the recursive call depends on the recursion type of the current function.
  */
 StatementIf *
-StatementIf::make_random_recursive(CGContext &cg_context)
+StatementIf::make_random_recursive(RecursiveCGContext &rec_cg_context)
 {
     DEPTH_GUARD_BY_TYPE_RETURN(dtStatementIf, NULL);
+    CGContext& cg_context = rec_cg_context.get_curr_cg_context();
     FactMgr* fm = get_fact_mgr(&cg_context);
     cg_context.get_effect_stm().clear();
     Expression *expr = Expression::make_random(cg_context, get_int_type(), NULL, false, !CGOptions::const_as_condition());
@@ -119,12 +124,12 @@ StatementIf::make_random_recursive(CGContext &cg_context)
     
     // this will save global_facts to map_facts_in[if_true], and update
     // facts for new variables created while generating if_true
-    Block *if_true = Block::make_random_recursive(cg_context, true);
+    Block *if_true = Block::make_random_recursive(rec_cg_context, true);
     ERROR_GUARD_AND_DEL1(NULL, expr);
     
     // generate false branch with the same env as true branch
     fm->global_facts = fm->map_facts_in[if_true];
-    Block *if_false = Block::make_random_recursive(cg_context, false);
+    Block *if_false = Block::make_random_recursive(rec_cg_context, false);
     ERROR_GUARD_AND_DEL2(NULL, expr, if_true);
     
     StatementIf* si = new StatementIf(cg_context.get_current_block(), *expr, *if_true, *if_false);

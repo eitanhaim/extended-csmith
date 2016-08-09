@@ -31,6 +31,8 @@ public:
     
     const Function* get_func() const { return func; }
     
+    void add_fact_mgr(vector<const Block*> call_chain, FactMgr* fact_mgr);
+    
 private:
     // maps call chains to fact managers
     map<vector<const Block*>, FactMgr*> map_fact_mgrs;

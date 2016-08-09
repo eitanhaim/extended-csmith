@@ -74,7 +74,7 @@ public:
 	void output_branches(std::ostream &out, FactMgr* fm, int indent = 0) const;
     
     // ****************************** ExtendedCsmith ****************************** >>
-    static StatementIf *make_random_recursive(CGContext &cg_context);
+    static StatementIf *make_random_recursive(RecursiveCGContext &rec_cg_context);
     virtual bool contains_return(void) const;
     // **************************************************************************** <<
 

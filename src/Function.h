@@ -138,7 +138,7 @@ public:
 	bool is_inlined;
 	bool is_builtin;
 	int  visited_cnt;
-	Effect accum_eff_context;
+	Effect accum_eff_context; // ExtendedCsmith Doc: the effect at the beginning of the function (after the last call)
     
     // ****************************** ExtendedCsmith ****************************** >>
     Function(const std::string &name, const Type *return_type, eFunctionType func_type);
@@ -188,6 +188,8 @@ const Block* find_blk_for_var(const Variable* v);
 
 // ****************************** ExtendedCsmith ****************************** >>
 void add_recursive_fact_mgr(RecursiveFactMgr* rfm);
+RecursiveFactMgr* get_rec_fact_mgr_for_func(const Function* func);
+RecursiveFactMgr* get_rec_fact_mgr(const RecursiveCGContext* rcg);
 // **************************************************************************** <<
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -136,6 +136,10 @@ public:
 	static void update_facts_for_dest(const FactVec& facts_in, FactVec& facts_out, const Statement* dest);
 	
 	void sanity_check_map() const;
+    
+    // ****************************** ExtendedCsmith ****************************** >>
+    FactMgr(FactMgr* fm);
+    // **************************************************************************** <<
 
 	static std::vector<Fact*> meta_facts; 
 

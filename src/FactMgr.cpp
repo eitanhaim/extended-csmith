@@ -470,12 +470,32 @@ FactMgr::update_facts_for_dest(const FactVec& facts_in, FactVec& facts_out, cons
  * 
  */
 FactMgr::FactMgr(const Function* f)
-: func(f)
+    : func(f)
 { 
 }
 
+// ****************************** ExtendedCsmith ****************************** >>
+/**
+ * copy constructor
+ */
+FactMgr::FactMgr(FactMgr* fm)
+    : map_facts_in(fm->map_facts_in),
+      map_facts_out(fm->map_facts_out),
+      map_facts_in_final(fm->map_facts_in_final),
+      map_facts_out_final(fm->map_facts_out_final),
+      map_stm_effect(fm->map_stm_effect),
+      map_accum_effect(fm->map_accum_effect),
+      map_visited(fm->map_visited),
+      cfg_edges(fm->cfg_edges),
+      global_facts(fm->global_facts),
+      func(fm->func)
+{
+    
+}
+// **************************************************************************** <<
+
 /*
- * 
+ *
  */
 FactMgr::~FactMgr(void)
 {

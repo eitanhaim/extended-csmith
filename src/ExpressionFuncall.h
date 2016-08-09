@@ -40,6 +40,7 @@
 class CGContext;
 class FunctionInvocation;
 class ExpressionVariable;
+class RecursiveCGContext;
 
 /*
  *
@@ -88,7 +89,7 @@ public:
 	virtual void indented_output(std::ostream &out, int indent) const;
     
     // ****************************** ExtendedCsmith ****************************** >>
-    static Expression *make_random_recursive(CGContext &cg_context, const Type* type, const CVQualifiers* qfer=0);
+    static Expression *make_random_recursive(RecursiveCGContext &rec_cg_context, const Type* type, const CVQualifiers* qfer);
     // **************************************************************************** <<
 
 private:

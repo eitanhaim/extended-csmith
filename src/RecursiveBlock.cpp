@@ -46,7 +46,7 @@ RecursiveBlock::make_random(RecursiveCGContext& rec_cg_context)
 {
     DEPTH_GUARD_BY_TYPE_RETURN(dtBlock, NULL);
     
-    CGContext& cg_context = *rec_cg_context.get_curr_cg_context();
+    CGContext& cg_context = rec_cg_context.get_curr_cg_context();
     Function *curr_func = cg_context.get_current_func();
     assert(curr_func);
     
@@ -63,7 +63,7 @@ RecursiveBlock::make_random(RecursiveCGContext& rec_cg_context)
     // inside the block doesn't ruin it
     FactMgr* fm = get_fact_mgr_for_func(curr_func);
     fm->set_fact_in(b, fm->global_facts);
-    Effect pre_effect = cg_context.get_accum_effect();
+    //Effect pre_effect = cg_context.get_accum_effect(); // TODO: DELETE
     
     // choose the actual size of this block
     b->actual_block_size = BlockProbability(*b) + 1;
@@ -108,9 +108,9 @@ RecursiveBlock::make_random(RecursiveCGContext& rec_cg_context)
     
     // generate a statement containing the recursive call
     if (b->contains_return())
-        b->stms.push_back(Statement::make_random_recursive(cg_context));
+        b->stms.push_back(Statement::make_random_recursive(rec_cg_context));
     else
-        b->stms.push_back(StatementIf::make_random_recursive(cg_context));
+        b->stms.push_back(StatementIf::make_random_recursive(rec_cg_context));
     
     if (Error::get_error() != SUCCESS) {
         curr_func->stack.pop_back();
@@ -127,7 +127,7 @@ RecursiveBlock::make_random(RecursiveCGContext& rec_cg_context)
     }
     
     // perform DFA analysis after creation
-    b->post_creation_analysis(cg_context, pre_effect);
+    b->post_creation_analysis(cg_context, rec_cg_context.get_pre_effect_acuum());
     
     if (Error::get_error() != SUCCESS) {
         curr_func->stack.pop_back();

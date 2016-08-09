@@ -10,12 +10,15 @@
 #ifndef RecursiveCGContext_h
 #define RecursiveCGContext_h
 
+#include <vector>
+#include <map>
+#include "Effect.h"
+
 class Block;
 class CGContext;
 class Function;
+class Effect;
 
-#include <vector>
-#include <map>
 using namespace std;
 
 
@@ -27,9 +30,15 @@ public:
     
     ~RecursiveCGContext(void);
     
-    CGContext* get_curr_cg_context() const { return curr_cg_context; }
+    CGContext& get_curr_cg_context() const { return *curr_cg_context; }
+    
+    Effect get_pre_effect_context() const { return pre_effect_context; }
+    
+    Effect get_pre_effect_acuum() const { return pre_effect_accum; }
     
     Function* get_func() const { return func; }
+    
+    void add_cg_context(CGContext* cg_context);
     
 private:
     // maps call chains to contexts
@@ -40,6 +49,12 @@ private:
     
     // the context for the current call chain
     CGContext* curr_cg_context;
+    
+    // the effect at the beginning of the function, after the first call
+    const Effect pre_effect_context;
+    
+    // the effect before the generation of the function body (empty)
+    const Effect pre_effect_accum;
     
     // the current function being analyzed
     Function* const func;

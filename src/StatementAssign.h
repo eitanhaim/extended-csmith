@@ -129,7 +129,7 @@ public:
 	void OutputSimple(std::ostream &out) const;
     
     // ****************************** ExtendedCsmith ****************************** >>
-    static StatementAssign *make_random_recursive(CGContext &cg_context);
+    static StatementAssign *make_random_recursive(RecursiveCGContext &rec_cg_context);
     // **************************************************************************** <<
 
 private:
