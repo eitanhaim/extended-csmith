@@ -62,6 +62,7 @@
 
 // ****************************** ExtendedCsmith ****************************** >>
 #include "StatementReturn.h"
+#include "StatementExpr.h"
 #include "RecursiveCGContext.h"
 // **************************************************************************** <<
 
@@ -207,10 +208,9 @@ Block::make_random(CGContext &cg_context, bool looping)
  * The recursion type of the recursive call depends on the recursion type of the current function.
  */
 Block *
-Block::make_random_recursive(RecursiveCGContext &rec_cg_context, bool is_stmt_return)
+Block::make_random_recursive(CGContext &cg_context, eStatementType t)
 {
     DEPTH_GUARD_BY_TYPE_RETURN(dtBlock, NULL);
-    CGContext& cg_context = rec_cg_context.get_curr_cg_context();
     Function *curr_func = cg_context.get_current_func();
     assert(curr_func);
     
@@ -229,33 +229,33 @@ Block::make_random_recursive(RecursiveCGContext &rec_cg_context, bool is_stmt_re
     fm->set_fact_in(b, fm->global_facts);
     Effect pre_effect = cg_context.get_accum_effect();
     
-    if (is_stmt_return)
+    if (t == eReturn) {
         b->stms.push_back(StatementReturn::make_random(cg_context));
-    else
-        b->stms.push_back(Statement::make_random_recursive(rec_cg_context));
-    
-    if (Error::get_error() != SUCCESS) {
+        if (Error::get_error() != SUCCESS) {
+            curr_func->stack.pop_back();
+            delete b;
+            return NULL;
+        }
+        
+        // perform DFA analysis after creation
+        b->post_creation_analysis(cg_context, pre_effect);
+        if (Error::get_error() != SUCCESS) {
+            curr_func->stack.pop_back();
+            delete b;
+            return NULL;
+        }
+        
         curr_func->stack.pop_back();
-        delete b;
-        return NULL;
+        if (Error::get_error() != SUCCESS) {
+            delete b;
+            return NULL;
+        }
+        
+        Error::set_error(SUCCESS);
+    } else { 
+         b->stms.push_back(StatementExpr::make_random_recursive(cg_context));
     }
-    
-    // perform DFA analysis after creation
-    b->post_creation_analysis(cg_context, pre_effect);
-    
-    if (Error::get_error() != SUCCESS) {
-        curr_func->stack.pop_back();
-        delete b;
-        return NULL;
-    }
-    
-    curr_func->stack.pop_back();
-    if (Error::get_error() != SUCCESS) {
-        delete b;
-        return NULL;
-    }
-    
-    Error::set_error(SUCCESS);
+
     return b;
 }
 // **************************************************************************** <<

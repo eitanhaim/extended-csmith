@@ -123,7 +123,7 @@ public:
 	std::vector<const Statement*> break_stms;
     
     // ****************************** ExtendedCsmith ****************************** >>
-    static Block *make_random_recursive(RecursiveCGContext &rec_cg_context, bool is_stmt_return);
+    static Block *make_random_recursive(CGContext &cg_context, eStatementType t);
     virtual bool contains_return(void) const;
     // **************************************************************************** <<
 
@@ -141,7 +141,7 @@ private:
 };
 
 Block* find_block_by_id(int blk_id);
-unsigned int BlockProbability(Block &block);
+unsigned int BlockProbability(Block &block); // ExtendedCsmith Edit
 
 ///////////////////////////////////////////////////////////////////////////////
 

@@ -14,8 +14,6 @@
 
 RecursiveCGContext::RecursiveCGContext(CGContext* cg_context)
     : curr_cg_context(cg_context),
-      pre_effect_context(cg_context->get_effect_context()), 
-      pre_effect_accum(cg_context->get_accum_effect()),
       func(cg_context->get_current_func()),
       num_cg_contexts(CGOptions::max_fact_sets_in_inclusive_fact_set())
 {
@@ -32,6 +30,20 @@ RecursiveCGContext::add_cg_context(CGContext* cg_context)
 {
     map_cg_contexts[cg_context->call_chain] = cg_context;
     curr_cg_context = cg_context;
+}
+
+/**
+ * Removes from the map all of the elements except the first one.
+ * In addition, resets incoming effects in the left context.
+ */
+void
+RecursiveCGContext::reset_map_cg_contexts(const Effect& pre_effect)
+{
+    map<vector<const Block*>, CGContext*>::iterator iter = map_cg_contexts.begin();
+    curr_cg_context = iter->second;
+    iter++;
+    map_cg_contexts.erase(iter, map_cg_contexts.end());
+    curr_cg_context->reset_effect_accum(pre_effect);
 }
 
 // **************************************************************************** <<

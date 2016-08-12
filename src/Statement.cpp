@@ -81,7 +81,7 @@
 #include "VariableSelector.h"
 
 // ****************************** ExtendedCsmith ****************************** >>
-#include "RecursiveCGContext.h"
+#include "MutuallyRecursiveFunction.h"
 // **************************************************************************** <<
 
 using namespace std;
@@ -150,6 +150,17 @@ bool StatementFilter::filter(int value) const
 
 	const Type* return_type = cg_context_.get_current_func()->return_type;
 	bool no_return = (return_type->eType == eSimple && return_type->simple_type == eVoid);
+    
+    // ****************************** ExtendedCsmith ****************************** >>
+    if (CGOptions::mutual_recursion()) {
+        Function *curr_func = cg_context_.get_current_func();
+        if (curr_func->func_type == eMutuallyRecursive) {
+            MutuallyRecursiveFunction *mr_func = dynamic_cast<MutuallyRecursiveFunction *>(curr_func);
+            if (!mr_func->is_first() && mr_func->is_building_before)
+                no_return = true;
+        }
+    }
+    // **************************************************************************** <<
 
 	if (type == eBlock) {
 		return true;
@@ -313,42 +324,48 @@ Statement::make_random(CGContext &cg_context,
 	s->parent = cg_context.get_current_block();
 	s->post_creation_analysis(pre_facts, pre_effect, cg_context);
 	return s;
-} 
+}
 
 // ****************************** ExtendedCsmith ****************************** >>
-/**
- * Generates a random statement (either Assign-statemnt or Call-statement),
- * containing a recursive function call.
- * The recursion type of the recursive call depends on the recursion type of the current function.
- */
 Statement *
-Statement::make_random_recursive(RecursiveCGContext &rec_cg_context)
+Statement::make_random_recursive(CGContext &cg_context, eStatementType t)
 {
-    DEPTH_GUARD_BY_TYPE_RETURN_WITH_FLAG(dtStatement, MAX_STATEMENT_TYPE, NULL);
-    CGContext& cg_context = rec_cg_context.get_curr_cg_context();
+    DEPTH_GUARD_BY_TYPE_RETURN_WITH_FLAG(dtStatement, t, NULL);
     FactMgr* fm = get_fact_mgr(&cg_context);
     FactVec pre_facts = fm->global_facts;
     Effect pre_effect = cg_context.get_accum_effect();
     cg_context.get_effect_stm().clear();
     cg_context.expr_depth = 0;
+    if (is_compound(t)) {
+        cg_context.blk_depth++;
+    }
 
     Statement *s = 0;
-    
-    if (pure_rnd_flipcoin(50))
-        s = StatementAssign::make_random_recursive(rec_cg_context);
-    else
-        s = StatementExpr::make_random_recursive(rec_cg_context);
-    
-    ERROR_GUARD(NULL);
-    
-    // sometimes make_random_recursive may return 0 for various reasons. keep generating
-    if (s == 0) {
-        return make_random_recursive(rec_cg_context);
+    switch (t) {
+        case eInvoke:
+            s = StatementExpr::make_random_recursive(cg_context);
+            break;
+        case eIfElse:
+            s = StatementIf::make_random_recursive(cg_context);
+            break;
+        default:
+            assert(!"unsupported Statement type");
+            break;
     }
     
+    ERROR_GUARD(NULL);
+    if (is_compound(t)) {
+        cg_context.blk_depth--;
+    }
+    
+    // sometimes make_random may return 0 for various reasons. keep generating 
+    if (s == 0) {
+        return make_random(cg_context);
+    } 
     s->func = cg_context.get_current_func(); 
     s->parent = cg_context.get_current_block();
-    s->post_creation_analysis(pre_facts, pre_effect, cg_context);
+    fm->remove_rv_facts(fm->global_facts);
+    fm->set_fact_in(s, pre_facts);
     return s;
 }
 // **************************************************************************** <<

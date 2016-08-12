@@ -81,7 +81,7 @@ FunctionInvocation::make_random(bool is_std_func,
 {
 	FunctionInvocation *fi = 0;  
 	// If we are looking for a program-defined function, try to find one. 
-	if (!is_std_func) { 
+	if (!is_std_func) {
 		Function* callee = NULL;
 		if (pure_rnd_flipcoin(50)) {
 			callee = Function::choose_func(get_all_functions(), cg_context, type, qfer);

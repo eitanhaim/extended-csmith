@@ -56,7 +56,11 @@ class CGContext;
 class Fact;
 class Constant;
 class CVQualifiers;
+
+// ****************************** ExtendedCsmith ****************************** >>
 class RecursiveFactMgr;
+class RecursiveCGContext;
+// **************************************************************************** <<
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -186,7 +190,12 @@ const Function* find_function_by_name(const string& name);
 int find_function_in_set(const vector<const Function*>& set, const Function* f);
 const Block* find_blk_for_var(const Variable* v);
 
+const Type* RandomReturnType(void);                 // ExtendedCsmith Edit
+void GenerateParameterList(Function &curFunc);      // ExtendedCsmith Edit
+string  RandomFunctionName(void);                   // ExtendedCsmith Edit
+
 // ****************************** ExtendedCsmith ****************************** >>
+void add_fact_mgr(FactMgr* fm);
 void add_recursive_fact_mgr(RecursiveFactMgr* rfm);
 RecursiveFactMgr* get_rec_fact_mgr_for_func(const Function* func);
 RecursiveFactMgr* get_rec_fact_mgr(const RecursiveCGContext* rcg);

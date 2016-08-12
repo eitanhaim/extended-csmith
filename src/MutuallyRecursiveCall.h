@@ -19,6 +19,10 @@ public:
     
     virtual ~MutuallyRecursiveCall();
     
+    static MutuallyRecursiveCall* build_invocation_and_function(CGContext &cg_context);
+    
+    bool build_invocation(CGContext &cg_context);
+    
 private:
     
 };

@@ -72,7 +72,7 @@ public:
 	virtual void Output(std::ostream &out, FactMgr* fm, int indent = 0) const;
     
     // ****************************** ExtendedCsmith ****************************** >>
-    static StatementExpr *make_random_recursive(RecursiveCGContext &rec_cg_context);
+    static StatementExpr *make_random_recursive(CGContext &cg_context);
     // **************************************************************************** <<
 
 private:

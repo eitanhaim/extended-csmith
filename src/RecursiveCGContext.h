@@ -22,7 +22,7 @@ class Effect;
 using namespace std;
 
 
-// A c generator context for recursive functions
+// A code generation context for recursive functions
 class RecursiveCGContext
 {
 public:
@@ -30,15 +30,13 @@ public:
     
     ~RecursiveCGContext(void);
     
-    CGContext& get_curr_cg_context() const { return *curr_cg_context; }
-    
-    Effect get_pre_effect_context() const { return pre_effect_context; }
-    
-    Effect get_pre_effect_acuum() const { return pre_effect_accum; }
+    CGContext* get_curr_cg_context() const { return curr_cg_context; }
     
     Function* get_func() const { return func; }
     
     void add_cg_context(CGContext* cg_context);
+    
+    void reset_map_cg_contexts(const Effect& pre_effect);
     
 private:
     // maps call chains to contexts
@@ -49,12 +47,6 @@ private:
     
     // the context for the current call chain
     CGContext* curr_cg_context;
-    
-    // the effect at the beginning of the function, after the first call
-    const Effect pre_effect_context;
-    
-    // the effect before the generation of the function body (empty)
-    const Effect pre_effect_accum;
     
     // the current function being analyzed
     Function* const func;

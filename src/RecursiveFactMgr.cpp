@@ -32,4 +32,20 @@ RecursiveFactMgr::add_fact_mgr(vector<const Block*> call_chain, FactMgr* fact_mg
     curr_fact_mgr = fact_mgr;
 }
 
+/**
+ * Removes from the map all of the elements except the first one.
+ * In addition, resets input/output env of this statement and all statements included to empty,
+ * in the left fact manager.
+ */
+void
+RecursiveFactMgr::reset_map_fact_mgrs(const Statement* stm)
+{
+    map<vector<const Block*>, FactMgr*>::iterator iter = map_fact_mgrs.begin();
+    curr_fact_mgr = iter->second;
+    iter++;
+    map_fact_mgrs.erase(iter, map_fact_mgrs.end());
+    curr_fact_mgr->reset_stm_fact_maps(stm);
+}
+
+
 // **************************************************************************** <<

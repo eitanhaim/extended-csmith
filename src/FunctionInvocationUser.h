@@ -99,8 +99,7 @@ public:
 	FunctionInvocationUser(Function *target, bool isBackLink, const SafeOpFlags *flags);
     
     // ****************************** ExtendedCsmith ****************************** >>
-    static FunctionInvocationUser *make_random_recursive(RecursiveCGContext &rec_cg_context,
-                                                         const Type* type, const CVQualifiers* qfer);
+    static FunctionInvocationUser *make_random_recursive(CGContext &cg_context);
 
     FunctionInvocationUser(Function *target, bool isBackLink, const SafeOpFlags *flags, eFuncCallType call_type);
     

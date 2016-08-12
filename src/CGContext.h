@@ -168,8 +168,13 @@ public: // XXX
 	const Expression* curr_rhs;   // only used in the context of LHS
 
 private:
+    // ExtendedCsmith Doc: the effect of the context in which the current function is called
 	const Effect &effect_context;
+    
+    // ExtendedCsmith Doc: the accumulative effect from the first statement of the function until now
 	Effect *effect_accum; // may be null!
+    
+    // ExtendedCsmith Doc: the effect from the beginning of the last statement until now
 	Effect effect_stm;
 	// TODO: move `Function::flags' to here.
 	// TODO: move `Function::...' to here?

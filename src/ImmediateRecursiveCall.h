@@ -20,14 +20,7 @@ public:
     
     virtual ~ImmediateRecursiveCall();
     
-    bool build_invocation(RecursiveCGContext &rec_cg_context);
-    
-    bool find_fixed_point(vector<const Fact*> inputs, vector<const Fact*>& post_facts,
-                          CGContext& cg_context, int& fail_index, bool visit_once) const;
-    
-private:
-    
-    void post_creation_analysis(RecursiveCGContext& rec_cg_context);
+    bool build_invocation(CGContext &cg_context);
 };
 
 

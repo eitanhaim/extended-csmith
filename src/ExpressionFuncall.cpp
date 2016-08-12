@@ -47,10 +47,6 @@
 #include "Block.h"
 #include "random.h"
 
-// ****************************** ExtendedCsmith ****************************** >>
-#include "RecursiveCGContext.h"
-// **************************************************************************** <<
-
 ///////////////////////////////////////////////////////////////////////////////
 
 /*
@@ -99,42 +95,6 @@ ExpressionFuncall::make_random(CGContext &cg_context, const Type* type, const CV
 	}
 	return e;
 }
-
-// ****************************** ExtendedCsmith ****************************** >>
-/**
- * Generates a random expression consisting of a recursive function call.
- * The recursion type of the recursive call depends on the recursion type of the current function.
- */
-Expression *
-ExpressionFuncall::make_random_recursive(RecursiveCGContext &rec_cg_context, const Type* type, const CVQualifiers* qfer)
-{
-    Expression *e = 0;
-    CGContext& cg_context = rec_cg_context.get_curr_cg_context();
-    Effect effect_accum = cg_context.get_accum_effect();
-    Effect effect_stm = cg_context.get_effect_stm();
-    FactMgr* fm = get_fact_mgr(&cg_context);
-    vector<const Fact*> facts_copy = fm->global_facts;
-    FunctionInvocation *fi = FunctionInvocationUser::make_random_recursive(rec_cg_context, type, qfer);
-    ERROR_GUARD(NULL);
-    
-    if (fi->failed) {
-        // if it's a invalid invocation, (see FunctionInvocationUser::revisit)
-        // restore the env, and replace invocation with a simple var
-        cg_context.reset_effect_accum(effect_accum);
-        cg_context.reset_effect_stm(effect_stm);
-        fm->restore_facts(facts_copy);
-        e = ExpressionVariable::make_random(cg_context, type, qfer);
-        delete fi;
-    }
-    else {
-        e = new ExpressionFuncall(*fi);
-    }
-    
-    cg_context.expr_depth++;
-    
-    return e;
-}
-// **************************************************************************** <<
 
 /*
  *

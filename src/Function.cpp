@@ -209,6 +209,14 @@ get_fact_mgr(const CGContext* cg)
     return get_fact_mgr_for_func(cg->get_current_func());
 }
 
+// ****************************** ExtendedCsmith ****************************** >>
+void
+add_fact_mgr(FactMgr* fm)
+{
+    FMList.push_back(fm);
+}
+// **************************************************************************** <<
+
 const Function*
 find_function_by_name(const string& name)
 {
@@ -339,7 +347,7 @@ GetFirstFunction(void)
 /*
  *
  */
-static string
+string  // ExtendedCsmith Edit
 RandomFunctionName(void)
 {
 	return gensym("func_");
@@ -349,7 +357,7 @@ RandomFunctionName(void)
  *  choose a random return type. only struct/unions and integer types 
  *  (not incl. void)  are qualified, (no arrays)
  *************************************************************/
-static const Type*
+const Type*             // ExtendedCsmith Edit
 RandomReturnType(void)
 {
 	const Type* t = 0; 
@@ -480,7 +488,7 @@ GenerateParameterListFromString(Function &currFunc, const string &params_string)
 /*
  *
  */
-static void
+void         // ExtendedCsmith Edit
 GenerateParameterList(Function &curFunc)
 {
 	unsigned int max = ParamListProbability();
@@ -559,6 +567,7 @@ Function::make_random_signature(const CGContext& cg_context, const Type* type, c
     Function *f;    // ExtendedCsmith Edit
 	
     // ****************************** ExtendedCsmith ****************************** >>
+    int num_funcs;
     if (CGOptions::recursion()) {
         // choose the function type
         Function::InitProbabilityTable();
@@ -574,7 +583,9 @@ Function::make_random_signature(const CGContext& cg_context, const Type* type, c
                 f = new ImmediateRecursiveFunction(RandomFunctionName(), type);
                 break;
             case eMutuallyRecursive:
-                f = new MutuallyRecursiveFunction(RandomFunctionName(), type);
+                num_funcs = MutuallyRecursiveFunction::MutuallyRecursiveFunctionProbability();
+                ERROR_GUARD(NULL);
+                f = new MutuallyRecursiveFunction(RandomFunctionName(), type, num_funcs);
                 break;
             default:
                 assert(!"unknown function type");
@@ -731,6 +742,16 @@ Function::Output(std::ostream &out)
 		return;
 	OutputMgr::set_curr_func(name);
 	output_comment_line(out, "------------------------------------------");
+    
+    // ****************************** ExtendedCsmith ****************************** >>
+    if (CGOptions::recursion()) {
+        if (func_type == eImmediateRecursive)
+            output_comment_line(out, "Immediate recusrive function");
+        else if (func_type == eMutuallyRecursive)
+            output_comment_line(out, "Mutually recusrive function");
+    }
+    // **************************************************************************** <<
+
 	if (!CGOptions::concise()) {
 		feffect.Output(out);
 	}

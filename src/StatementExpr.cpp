@@ -41,7 +41,7 @@
 #include "DepthSpec.h"
 
 // ****************************** ExtendedCsmith ****************************** >>
-#include "RecursiveCGContext.h"
+#include "RecursiveBlock.h"
 // **************************************************************************** <<
 
 using namespace std;
@@ -72,29 +72,36 @@ StatementExpr::make_random(CGContext &cg_context)
 }
 
 // ****************************** ExtendedCsmith ****************************** >>
-/**
+/** 
  * Generates a random Call-statement which is a recursive function call.
  * The recursion type of the recursive call depends on the recursion type of the current function.
  */
 StatementExpr *
-StatementExpr::make_random_recursive(RecursiveCGContext &rec_cg_context)
+StatementExpr::make_random_recursive(CGContext &cg_context)
 { 
     DEPTH_GUARD_BY_TYPE_RETURN(dtStatementExpr, NULL);
-    CGContext& cg_context = rec_cg_context.get_curr_cg_context();
-    FunctionInvocationUser *invoke;
+    FunctionInvocationUser *rec_call;
+    
     // make copies
     Effect pre_effect = cg_context.get_accum_effect();
     FactMgr* fm = get_fact_mgr(&cg_context);
     vector<const Fact*> facts_copy = fm->global_facts;
-    invoke = FunctionInvocationUser::make_random_recursive(rec_cg_context, 0, 0);
+    
+    // generate the recursive call
+    rec_call = FunctionInvocationUser::make_random_recursive(cg_context);
     ERROR_GUARD(NULL);
-    if (invoke->failed) {
+    if (rec_call->failed) {
         cg_context.reset_effect_accum(pre_effect);
         fm->restore_facts(facts_copy);
-        delete invoke;
+        delete rec_call;
         return 0;
     }
-    return new StatementExpr(cg_context.get_current_block(), *invoke);
+    
+    // save the reucrsive call
+    RecursiveBlock *rec_block = dynamic_cast<RecursiveBlock *>(cg_context.get_current_func()->body) ;
+    rec_block->rec_call = rec_call;
+    
+    return new StatementExpr(cg_context.get_current_block(), *rec_call);;
 }
 // **************************************************************************** <<
 
