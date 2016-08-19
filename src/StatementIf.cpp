@@ -135,7 +135,7 @@ StatementIf::make_random_recursive(CGContext &cg_context)
     StatementIf* si = new StatementIf(cg_context.get_current_block(), *expr, *if_true, *if_false);
     // compute accumulated effect for this statement
     si->set_accumulated_effect_after_block(eff, if_true, cg_context);
-    //si->set_accumulated_effect_after_block(eff, if_false, cg_context);
+    si->set_accumulated_effect_after_block(eff, if_false, cg_context);
     return si;
 }
 // **************************************************************************** <<

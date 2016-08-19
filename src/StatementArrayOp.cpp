@@ -339,7 +339,9 @@ StatementArrayOp::visit_facts(vector<const Fact*>& inputs, CGContext& cg_context
 }
 
 // ****************************** ExtendedCsmith ****************************** >>
-/** Returns whether this statement contains Return-statement. */
+/** 
+ * Returns whether this statement contains Return-statement. 
+ */
 bool
 StatementArrayOp::contains_return(void) const
 {

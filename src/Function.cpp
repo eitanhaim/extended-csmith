@@ -75,7 +75,103 @@ using namespace std;
 
 ///////////////////////////////////////////////////////////////////////////////
 
+static vector<Function*> FuncList;              // List of all functions in the program
+static vector<FactMgr*>  FMList;                // List of fact managers for each function
+static long cur_func_idx;                       // Index into FuncList that we are currently working on
+static bool param_first=true;                   // Flag to track output of commas 
+static int builtin_functions_cnt;
+
 // ****************************** ExtendedCsmith ****************************** >>
+static vector<RecursiveFactMgr*>  RFMList;      // List of fact managers for each recursive function
+static vector<RecursiveCGContext*>  RCGCList;      // List of code generation contexts for each recursive function
+// **************************************************************************** <<
+
+/*
+ * find FactMgr for a function
+ */
+FactMgr* 
+get_fact_mgr_for_func(const Function* func)
+{
+    // ****************************** ExtendedCsmith ****************************** >>
+    if (CGOptions::recursion() && func->is_recursive()) {
+        for (size_t i=0; i<RFMList.size(); i++) {
+            if (RFMList[i]->get_func() == func) {
+                return RFMList[i]->get_curr_fact_mgr();
+            }
+        }
+    }
+    // **************************************************************************** <<
+
+    for (size_t i=0; i<FuncList.size(); i++) {
+		if (FuncList[i] == func) {
+			return FMList[i];
+		}
+	}
+    return 0; 
+}
+
+/*
+ *
+ */
+FactMgr* 
+get_fact_mgr(const CGContext* cg)
+{ 
+    return get_fact_mgr_for_func(cg->get_current_func());
+}
+
+// ****************************** ExtendedCsmith ****************************** >>
+void
+add_fact_mgr(FactMgr* fm)
+{
+    FMList.push_back(fm);
+}
+
+void
+add_recursive_fact_mgr(RecursiveFactMgr* rfm)
+{
+    RFMList.push_back(rfm);
+}
+
+void
+add_recursive_cg_context(RecursiveCGContext* rcgc)
+{
+    RCGCList.push_back(rcgc);
+}
+
+/**
+ * Finds the fact manager suitable for the given recursive function.
+ */
+RecursiveFactMgr*
+get_rec_fact_mgr_for_func(const Function* func)
+{
+    if (CGOptions::recursion() && func->is_recursive()) {
+        for (size_t i=0; i<RFMList.size(); i++) {
+            if (RFMList[i]->get_func() == func) {
+                return RFMList[i];
+            }
+        }
+    }
+    return 0;
+}
+
+/**
+ * Finds the code generation context suitable for the given recursive function.
+ */
+RecursiveCGContext*
+get_rec_cg_context_for_func(const Function* func)
+{
+    if (CGOptions::recursion() && func->is_recursive()) {
+        for (size_t i=0; i<RCGCList.size(); i++) {
+            if (RCGCList[i]->get_func() == func) {
+                return RCGCList[i];
+            }
+        }
+    }
+    return 0;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
 class FunctionFilter : public Filter
 {
 public:
@@ -89,7 +185,7 @@ private:
 };
 
 FunctionFilter::FunctionFilter(const CGContext &cg_context)
-: cg_context_(cg_context)
+    : cg_context_(cg_context)
 {
     
 }
@@ -136,84 +232,6 @@ FunctionProbability(const FunctionFilter *filter)
     assert(value != -1);
     assert(value >= 0 && value < 100);
     return Function::number_to_type(value);
-}
-
-static vector<RecursiveFactMgr*>  RFMList;      // List of fact managers for each recursive function
-
-void
-add_recursive_fact_mgr(RecursiveFactMgr* rfm)
-{
-    RFMList.push_back(rfm);
-}
-
-/**
- * Finds the fact manager suitable for the given recursive function.
- */
-RecursiveFactMgr*
-get_rec_fact_mgr_for_func(const Function* func)
-{
-    if (CGOptions::recursion() && func->is_recursive()) {
-        for (size_t i=0; i<RFMList.size(); i++) {
-            if (RFMList[i]->get_func() == func) {
-                return RFMList[i];
-            }
-        }
-    }
-    return 0;
-}
-
-RecursiveFactMgr*
-get_rec_fact_mgr(const RecursiveCGContext* rcg)
-{
-    return get_rec_fact_mgr_for_func(rcg->get_func());
-}
-
-// **************************************************************************** <<
-
-static vector<Function*> FuncList;              // List of all functions in the program
-static vector<FactMgr*>  FMList;                // List of fact managers for each function
-static long cur_func_idx;                       // Index into FuncList that we are currently working on
-static bool param_first=true;                   // Flag to track output of commas 
-static int builtin_functions_cnt;
-
-/*
- * find FactMgr for a function
- */
-FactMgr* 
-get_fact_mgr_for_func(const Function* func)
-{
-    // ****************************** ExtendedCsmith ****************************** >>
-    if (CGOptions::recursion() && func->is_recursive()) {
-        for (size_t i=0; i<RFMList.size(); i++) {
-            if (RFMList[i]->get_func() == func) {
-                return RFMList[i]->get_curr_fact_mgr();
-            }
-        }
-    }
-    // **************************************************************************** <<
-
-    for (size_t i=0; i<FuncList.size(); i++) {
-		if (FuncList[i] == func) {
-			return FMList[i];
-		}
-	}
-    return 0; 
-}
-
-/*
- *
- */
-FactMgr* 
-get_fact_mgr(const CGContext* cg)
-{ 
-    return get_fact_mgr_for_func(cg->get_current_func());
-}
-
-// ****************************** ExtendedCsmith ****************************** >>
-void
-add_fact_mgr(FactMgr* fm)
-{
-    FMList.push_back(fm);
 }
 // **************************************************************************** <<
 
@@ -432,10 +450,14 @@ Function::choose_func(vector<Function *> funcs,
 		// Otherwise, this is an acceptable choice.
         
         // ****************************** ExtendedCsmith ****************************** >>
-        if (CGOptions::mutual_recursion() && (*i)->func_type == eMutuallyRecursive) {
+        /*if (CGOptions::mutual_recursion() && (*i)->func_type == eMutuallyRecursive) {
             MutuallyRecursiveFunction* f = dynamic_cast<MutuallyRecursiveFunction*>(*i);
             if (!f->is_first())
                 continue;
+        }*/
+        // disallow to call a recursive function more than once
+        if (CGOptions::recursion() && (*i)->is_recursive()) {
+            continue;
         }
         // **************************************************************************** <<
         
@@ -746,9 +768,9 @@ Function::Output(std::ostream &out)
     // ****************************** ExtendedCsmith ****************************** >>
     if (CGOptions::recursion()) {
         if (func_type == eImmediateRecursive)
-            output_comment_line(out, "Immediate recusrive function");
+            output_comment_line(out, "Immediate recursive function");
         else if (func_type == eMutuallyRecursive)
-            output_comment_line(out, "Mutually recusrive function");
+            output_comment_line(out, "Mutually recursive function");
     }
     // **************************************************************************** <<
 
@@ -881,6 +903,7 @@ Function::generate_body_with_known_params(const CGContext &prev_context, Effect&
         RecursiveFactMgr* rec_fm = new RecursiveFactMgr(cg_context.call_chain, fm);
         add_recursive_fact_mgr(rec_fm);
         RecursiveCGContext rec_cg_context (&cg_context);
+        add_recursive_cg_context(&rec_cg_context);
         body = RecursiveBlock::make_random(rec_cg_context);
     } else {
         // fill in the function body

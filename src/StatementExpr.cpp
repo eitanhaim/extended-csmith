@@ -98,7 +98,7 @@ StatementExpr::make_random_recursive(CGContext &cg_context)
     }
     
     // save the reucrsive call
-    RecursiveBlock *rec_block = dynamic_cast<RecursiveBlock *>(cg_context.get_current_func()->body) ;
+    RecursiveBlock *rec_block = dynamic_cast<RecursiveBlock *>(cg_context.get_current_func()->blocks[0]) ;
     rec_block->rec_call = rec_call;
     
     return new StatementExpr(cg_context.get_current_block(), *rec_call);;

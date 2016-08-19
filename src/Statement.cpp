@@ -82,6 +82,9 @@
 
 // ****************************** ExtendedCsmith ****************************** >>
 #include "MutuallyRecursiveFunction.h"
+#include "RecursiveFactMgr.h"
+#include "RecursiveCGContext.h"
+#include "RecursiveBlock.h"
 // **************************************************************************** <<
 
 using namespace std;
@@ -349,7 +352,7 @@ Statement::make_random_recursive(CGContext &cg_context, eStatementType t)
             s = StatementIf::make_random_recursive(cg_context);
             break;
         default:
-            assert(!"unsupported Statement type");
+            assert(!"unsupported statement type");
             break;
     }
     
@@ -364,8 +367,10 @@ Statement::make_random_recursive(CGContext &cg_context, eStatementType t)
     } 
     s->func = cg_context.get_current_func(); 
     s->parent = cg_context.get_current_block();
-    fm->remove_rv_facts(fm->global_facts);
-    fm->set_fact_in(s, pre_facts);
+    vector<const Fact*> post_facts = fm->global_facts;
+    s->post_creation_analysis(pre_facts, pre_effect, cg_context);
+    fm->global_facts = post_facts;
+    
     return s;
 }
 // **************************************************************************** <<
@@ -698,7 +703,14 @@ Statement::stm_visit_facts(vector<const Fact*>& inputs, CGContext& cg_context) c
 	}
 	//if (!FactPointTo::is_valid_ptr("g_75", inputs))
 	//	Output(cout, fm);
-	fm->remove_rv_facts(inputs); 
+    
+    // ****************************** ExtendedCsmith ****************************** >>
+    if (!CGOptions::recursion() || !func->is_recursive() ||
+        !cg_context.not_to_remove_rv_facts) {
+        fm->remove_rv_facts(inputs);    // ExtendedCsmith Edit
+    }
+    // **************************************************************************** <<
+
 	fm->map_accum_effect[this] = *(cg_context.get_effect_accum());
 	fm->map_visited[this] = true;
 	return ok;
@@ -996,12 +1008,71 @@ Statement::post_creation_analysis(vector<const Fact*>& pre_facts, const Effect& 
 	fm->set_fact_out(this, fm->global_facts); 
 	fm->map_accum_effect[this] = *(cg_context.get_effect_accum());
 	fm->map_visited[this] = true;
+    
+    // ****************************** ExtendedCsmith ****************************** >>
+    if (CGOptions::recursion() && func->is_recursive() &&
+        dynamic_cast<RecursiveBlock*>(func->blocks[0])->outermost_rec_stmt)
+        update_maps();
+    // **************************************************************************** <<
 }
+
+// ****************************** ExtendedCsmith ****************************** >>
+/**
+ * Updates the fact managers and the contexts in the corresponding maps.
+ * This function is called when the current function is recursive,
+ * and we have already generated the recursive call.
+ */
+void
+Statement::update_maps() const
+{
+    RecursiveCGContext *rec_cg_context = get_rec_cg_context_for_func(func);
+    RecursiveFactMgr *rec_fm = get_rec_fact_mgr_for_func(func);
+    map<vector<const Block*>, CGContext*>& map_cg_contexts = rec_cg_context->map_cg_contexts;
+    map<vector<const Block*>, FactMgr*>& map_fact_mgrs = rec_fm->map_fact_mgrs;
+    map<vector<const Block*>, CGContext*>::iterator iter_cgc;
+    map<vector<const Block*>, FactMgr*>::iterator iter_fm;
+    
+    for (iter_cgc = map_cg_contexts.begin(), iter_fm = map_fact_mgrs.begin();
+         iter_cgc != map_cg_contexts.end() && iter_fm != map_fact_mgrs.end(); iter_cgc++, iter_fm++) {
+        CGContext *cg_context = iter_cgc->second;
+        FactMgr *fm = iter_fm->second;
+        rec_cg_context->set_curr_cg_context(cg_context);
+        rec_fm->set_curr_fact_mgr(fm);
+        
+        // update the current context and the current fact manager
+        vector<const Fact*> inputs_copy = fm->global_facts;
+        if (!stm_visit_facts(fm->global_facts, *cg_context))
+            assert(0);
+        
+        fm->set_fact_in(this, inputs_copy);
+        fm->set_fact_out(this, fm->global_facts);
+        
+        // update merged_cg_context and merged_fact_mgr
+        if (iter_cgc == map_cg_contexts.begin() && iter_fm == map_fact_mgrs.begin()) {
+            Effect effect_accum = cg_context->get_accum_effect();
+            Effect eff_stm = cg_context->get_effect_stm();
+            rec_cg_context->merged_cg_context->reset_effect_accum(effect_accum);
+            rec_cg_context->merged_cg_context->reset_effect_stm(eff_stm);
+            rec_fm->merged_fact_mgr->global_facts = fm->global_facts;
+        } else {
+            rec_cg_context->merged_cg_context->add_effect(*cg_context->get_effect_accum());
+            merge_facts(rec_fm->merged_fact_mgr->global_facts, fm->global_facts);
+        }
+    }
+    
+    // set the map values of merged_cg_context and merged_fact_mgr
+    rec_fm->merged_fact_mgr->set_fact_out(this, rec_fm->merged_fact_mgr->global_facts);
+    rec_fm->merged_fact_mgr->map_accum_effect[this] = *(rec_cg_context->merged_cg_context->get_effect_accum());
+    rec_fm->merged_fact_mgr->map_stm_effect[this] = rec_cg_context->merged_cg_context->get_effect_stm();
+    rec_cg_context->set_curr_cg_context(rec_cg_context->merged_cg_context);
+    rec_fm->set_curr_fact_mgr(rec_fm->merged_fact_mgr);
+}
+// **************************************************************************** <<
 
 /*
  * return: 1 means this is a goto target, 0 otherwise
  */
-int 
+int
 Statement::pre_output(std::ostream &out, FactMgr* /* fm */, int indent) const
 {
 	// output label if this is a goto target

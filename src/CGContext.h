@@ -166,6 +166,12 @@ public: // XXX
 	map<const Variable*, unsigned int> iv_bounds;
 	
 	const Expression* curr_rhs;   // only used in the context of LHS
+    
+    // ****************************** ExtendedCsmith ****************************** >>
+    // flag indicating whether not to remove rv facts when setting map_facts_out
+    // this flag is up when the recursive call has just been visited
+    bool not_to_remove_rv_facts;
+    // **************************************************************************** <<
 
 private:
     // ExtendedCsmith Doc: the effect of the context in which the current function is called

@@ -25,10 +25,14 @@ public:
     
     MutuallyRecursiveFunction* get_first_func() const { return first_func; }
     
-    /** Returns whether this function is the first one in its recursive call cycle. */
+    /** 
+     * Returns whether this function is the first one in its recursive call cycle. 
+     */
     bool is_first() const { return index == 0; }
     
-    /** Returns whether this function is the last one in its recursive call cycle. */
+    /** 
+     * Returns whether this function is the last one in its recursive call cycle. 
+     */
     bool is_last() const { return index == num_funcs - 1; }
     
     static unsigned int MutuallyRecursiveFunctionProbability();

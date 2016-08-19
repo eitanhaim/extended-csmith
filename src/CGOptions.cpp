@@ -513,12 +513,12 @@ CGOptions::has_recursion_conflict()
     if (!CGOptions::recursion())
         return false;
 
-    if (CGOptions::max_fact_sets_in_inclusive_fact_set() < 1) {
+    if (CGOptions::max_fact_sets_in_inclusive_fact_set() < 2) {
         conflict_msg_ = "max-fact-sets-in-inclusive-fact-set must be at least 1";
         return true;
     }
     
-    if (CGOptions::max_funcs_in_recursive_call_cycle() < 1) {
+    if (CGOptions::max_funcs_in_recursive_call_cycle() < 2) {
         conflict_msg_ = "max-funcs-in-recursive-call-cycle must be at least 1";
         return true;
     }

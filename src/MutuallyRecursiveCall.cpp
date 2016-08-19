@@ -26,7 +26,9 @@ MutuallyRecursiveCall::~MutuallyRecursiveCall()
     // nothing to do
 }
 
-/** Builds parameters first, then the function body. */
+/** 
+ * Builds parameters first, then the function body. 
+ */
 MutuallyRecursiveCall*
 MutuallyRecursiveCall::build_invocation_and_function(CGContext &cg_context)
 {
@@ -96,7 +98,9 @@ MutuallyRecursiveCall::build_invocation_and_function(CGContext &cg_context)
     return mr_call;
 }
 
-/** Builds the last call in the corresponding recursive call cycle without performing a post-analysis. */
+/** 
+ * Builds the last call in the corresponding recursive call cycle without performing a post-analysis.
+ */
 bool
 MutuallyRecursiveCall::build_invocation(CGContext &cg_context)
 {

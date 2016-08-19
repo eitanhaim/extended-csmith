@@ -321,7 +321,7 @@ FunctionInvocationUser::build_invocation(Function *target, CGContext &cg_context
 	}
 	else {
 		// if the function neither change pointer facts, nor dereference pointer (which means
-		// the read/write set are static, no need to re-analyze 
+		// the read/write set are static, no need to re-analyze)
 		cg_context.add_external_effect(func->get_feffect());
 	}  
 	return !failed; 

@@ -15,7 +15,9 @@
 
 const int MutuallyRecursiveFunction::max_funcs_in_recursive_call_cycle = CGOptions::max_funcs_in_recursive_call_cycle();
 
-/** constructor for the first function in the corresponding recursive call cycle  */
+/** 
+ * constructor for the first function in the corresponding recursive call cycle  
+ */
 MutuallyRecursiveFunction::MutuallyRecursiveFunction(const std::string &name, const Type *return_type, int num_funcs)
     : Function(name, return_type, eMutuallyRecursive),
       next_func(NULL),
@@ -26,7 +28,9 @@ MutuallyRecursiveFunction::MutuallyRecursiveFunction(const std::string &name, co
     // nothing to do
 }
 
-/** constructor for a non-first function in the corresponding recursive call cycle  */
+/** 
+ * constructor for a non-first function in the corresponding recursive call cycle  
+ */
 MutuallyRecursiveFunction::MutuallyRecursiveFunction(const std::string &name, const Type *return_type,
                                                      MutuallyRecursiveFunction *prev_func)
     : Function(name, return_type, eMutuallyRecursive),
@@ -47,7 +51,9 @@ MutuallyRecursiveFunction::~MutuallyRecursiveFunction()
     // nothing to do
 }
 
-/** Chooses a random number representing the number of functions in a recursive call cycle. */
+/** 
+ * Chooses a random number representing the number of functions in a recursive call cycle. 
+ */
 unsigned int
 MutuallyRecursiveFunction::MutuallyRecursiveFunctionProbability()
 {
@@ -58,7 +64,9 @@ MutuallyRecursiveFunction::MutuallyRecursiveFunctionProbability()
     return rnd_upto(max_funcs_in_recursive_call_cycle - 1, &filter) + 2;
 }
 
-/** Generates the signature, but not the body. */
+/** 
+ * Generates the signature, but not the body. 
+ */
 MutuallyRecursiveFunction*
 MutuallyRecursiveFunction::make_random_signature(const CGContext& cg_context)
 {

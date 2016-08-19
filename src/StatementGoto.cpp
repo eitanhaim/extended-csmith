@@ -49,6 +49,10 @@
 #include "Error.h"
 #include "Bookkeeper.h"
 
+// ****************************** ExtendedCsmith ****************************** >>
+#include "RecursiveBlock.h"
+// **************************************************************************** <<
+
 using namespace std;
 
 std::map<const Statement*, string> StatementGoto::stm_labels;
@@ -340,6 +344,18 @@ StatementGoto::find_good_jump_block(vector<Block*>& blocks, const Block* blk, bo
 		blocks.erase(blocks.begin() + index);
 		return find_good_jump_block(blocks, blk, as_dest);
 	}
+    
+    // ****************************** ExtendedCsmith ****************************** >>
+    // in a recursive function, disallow jumping to a block that is before the recursive call
+    if (CGOptions::recursion() && blk->func->is_recursive()) {
+        RecursiveBlock *rec_block = dynamic_cast<RecursiveBlock*>(blk->func->blocks[0]);
+        if (rec_block->outermost_rec_stmt &&
+            blocks[index]->stm_id <= rec_block->outermost_rec_stmt->stm_id && as_dest) {
+            blocks.erase(blocks.begin() + index);
+            return find_good_jump_block(blocks, blk, as_dest);
+        }
+    }
+    // **************************************************************************** <<
 
 	Block* b = blocks[index]; 
 	if (b == blk) {

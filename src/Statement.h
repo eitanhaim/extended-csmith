@@ -176,6 +176,7 @@ public:
     // ****************************** ExtendedCsmith ****************************** >>
     static Statement *make_random_recursive(CGContext &cg_context, eStatementType t);
     virtual bool contains_return(void) const {return false;}
+    void update_maps() const;
     // **************************************************************************** <<
 
 	const eStatementType eType;

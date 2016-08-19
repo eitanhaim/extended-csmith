@@ -86,7 +86,7 @@ ExpressionVariable::make_random(CGContext &cg_context, const Type* type, const C
 			continue;
 		}
 
-		// forbid a escaping pointer to take the address of an argument or a local variable
+		// forbid an escaping pointer to take the address of an argument or a local variable
 		int indirection = var->type->get_indirect_level() - type->get_indirect_level();
 		if (as_return && CGOptions::no_return_dead_ptr() &&
 			FactPointTo::is_pointing_to_locals(var, cg_context.get_current_block(), indirection, fm->global_facts)) {

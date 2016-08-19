@@ -534,17 +534,21 @@ FunctionInvocation::visit_facts(vector<const Fact*>& inputs, CGContext& cg_conte
 		// make a copy of env
 		vector<const Fact*> inputs_copy = inputs;
 		const FunctionInvocationUser* func_call = dynamic_cast<const FunctionInvocationUser*>(this);
-		Effect effect_accum;  
-		//CGContext new_context(func_call->func, cg_context.get_effect_context(), &effect_accum);
-		CGContext new_context(cg_context, func_call->func, cg_context.get_effect_context(), &effect_accum);
-		ok = func_call->revisit(inputs, new_context); 
-		if (ok) {
-			assert(cg_context.curr_blk);
-			//cg_context.add_external_effect(*new_context.get_effect_accum());
-			cg_context.add_visible_effect(*new_context.get_effect_accum(), cg_context.curr_blk);
-			Effect& func_effect = func_call->func->feffect;
-			func_effect.add_external_effect(*new_context.get_effect_accum(), cg_context.call_chain);
-		}
+        if (func_call->call_type == eNonRecursiveCall) { // ExtendedCsmith Edit
+            Effect effect_accum;
+            //CGContext new_context(func_call->func, cg_context.get_effect_context(), &effect_accum);
+            CGContext new_context(cg_context, func_call->func, cg_context.get_effect_context(), &effect_accum);
+            ok = func_call->revisit(inputs, new_context);
+            if (ok) {
+                assert(cg_context.curr_blk);
+                //cg_context.add_external_effect(*new_context.get_effect_accum());
+                cg_context.add_visible_effect(*new_context.get_effect_accum(), cg_context.curr_blk);
+                Effect& func_effect = func_call->func->feffect;
+                func_effect.add_external_effect(*new_context.get_effect_accum(), cg_context.call_chain);
+            }
+        } else {
+            cg_context.not_to_remove_rv_facts = true;
+        }
 	}
 	return ok;
 }

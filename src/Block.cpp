@@ -230,7 +230,7 @@ Block::make_random_recursive(CGContext &cg_context, eStatementType t)
     Effect pre_effect = cg_context.get_accum_effect();
     
     if (t == eReturn) {
-        b->stms.push_back(StatementReturn::make_random(cg_context));
+        b->stms.push_back(Statement::make_random(cg_context, eReturn));
         if (Error::get_error() != SUCCESS) {
             curr_func->stack.pop_back();
             delete b;
@@ -244,17 +244,29 @@ Block::make_random_recursive(CGContext &cg_context, eStatementType t)
             delete b;
             return NULL;
         }
-        
-        curr_func->stack.pop_back();
+    } else {
+        b->stms.push_back(Statement::make_random_recursive(cg_context, eInvoke));
         if (Error::get_error() != SUCCESS) {
+            curr_func->stack.pop_back();
             delete b;
             return NULL;
         }
         
-        Error::set_error(SUCCESS);
-    } else { 
-         b->stms.push_back(StatementExpr::make_random_recursive(cg_context));
+        fm->map_visited[b] = true;
+        b->set_accumulated_effect(cg_context);
+        vector<const Fact*> post_facts = fm->global_facts;
+        FactMgr::update_facts_for_oos_vars(b->local_vars, post_facts);
+        fm->remove_rv_facts(post_facts);
+        fm->set_fact_out(b, post_facts);
     }
+    
+    curr_func->stack.pop_back();
+    if (Error::get_error() != SUCCESS) {
+        delete b;
+        return NULL;
+    }
+    
+    Error::set_error(SUCCESS);
 
     return b;
 }
@@ -864,7 +876,9 @@ Block::post_creation_analysis(CGContext& cg_context, const Effect& pre_effect)
 }
 
 // ****************************** ExtendedCsmith ****************************** >>
-/** Returns whether this block contains Return-statement. */
+/** 
+ * Returns whether this block contains Return-statement. 
+ */
 bool
 Block::contains_return(void) const
 {

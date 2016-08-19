@@ -197,8 +197,9 @@ string  RandomFunctionName(void);                   // ExtendedCsmith Edit
 // ****************************** ExtendedCsmith ****************************** >>
 void add_fact_mgr(FactMgr* fm);
 void add_recursive_fact_mgr(RecursiveFactMgr* rfm);
+void add_recursive_cg_context(RecursiveCGContext* rcgc);
 RecursiveFactMgr* get_rec_fact_mgr_for_func(const Function* func);
-RecursiveFactMgr* get_rec_fact_mgr(const RecursiveCGContext* rcg);
+RecursiveCGContext* get_rec_cg_context_for_func(const Function* func);
 // **************************************************************************** <<
 
 ///////////////////////////////////////////////////////////////////////////////
