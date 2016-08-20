@@ -722,8 +722,11 @@ FactPointTo::merge_pointees_of_pointers(const std::vector<const Variable*>& ptrs
 		FactPointTo dummy(p);
 		const FactPointTo* exist_fact = (const FactPointTo*)find_related_fact(facts, &dummy);
 		// I can not think of a reason this is null
-		// well...this actually happens when p is a parameter of function f, and we are in the middle of creating f 
-		assert(exist_fact);
+		// well...this actually happens when p is a parameter of function f, and we are in the middle of creating f
+        // ****************************** ExtendedCsmith ****************************** >>
+        if (!CGOptions::recursion())
+            assert(exist_fact);     // ExtendedCsmith Edit
+        // **************************************************************************** <<
 		if (exist_fact) {
 			for (j=0; j<exist_fact->get_point_to_vars().size(); j++) {
 				const Variable* pointee = exist_fact->get_point_to_vars()[j];

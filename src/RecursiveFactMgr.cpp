@@ -91,7 +91,7 @@ RecursiveFactMgr::update_map_fact_mgrs(const Statement* rec_if, const Statement*
         
         // handover from callee to caller: points-to/union facts
         FactVec ret_facts;
-        func->body->add_back_return_facts(next_fm, ret_facts);
+        func->blocks[0]->add_back_return_facts(next_fm, ret_facts);
         dynamic_cast<RecursiveBlock*>(func->blocks[0])->rec_call->save_return_fact(ret_facts);
         fm->global_facts = ret_facts;
         FactVec facts_copy = fm->map_facts_in[rec_stmt];
@@ -110,7 +110,7 @@ RecursiveFactMgr::update_map_fact_mgrs(const Statement* rec_if, const Statement*
     
     // save the return facts of the first fact manager to global_ret_facts
     FactVec ret_facts;
-    func->body->add_back_return_facts(map_fact_mgrs.begin()->second, ret_facts);
+    func->blocks[0]->add_back_return_facts(map_fact_mgrs.begin()->second, ret_facts);
     global_ret_facts = ret_facts;
     
     init_merged_fact_mgr();

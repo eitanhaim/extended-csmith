@@ -370,21 +370,22 @@ RecursiveBlock::prepare_for_next_iteration(FactVec& outputs, RecursiveCGContext&
     RecursiveFactMgr *rec_fm = get_rec_fact_mgr_for_func(func);
     CGContext *cg_context = rec_cg_context.get_curr_cg_context();
     FactMgr *fm = rec_fm->get_curr_fact_mgr();
+    vector<const Block*> call_chain;
     
     // create a new context for the next iteration
     if (rec_cg_context.get_num_cg_contexts() < rec_cg_context.get_max_cg_contexts()) {
-        Effect effect_accum;
-        Effect effect_context = cg_context->get_effect_context();
-        CGContext new_context(*cg_context, func, effect_context, &effect_accum);
-        rec_cg_context.add_cg_context(&new_context);
-        cg_context = &new_context;
+        Effect *effect_accum = new Effect();
+        //Effect effect_context = cg_context->get_effect_context();
+        CGContext *new_context = new CGContext(*cg_context, func, cg_context->get_effect_context(), effect_accum);
+        rec_cg_context.add_cg_context(new_context);
+        call_chain = new_context->call_chain;
     }
     
     // create a new fact manager for the next iteration
     if (rec_fm->get_num_fact_mgrs() < rec_fm->get_max_fact_mgrs()) {
         FactMgr* new_fm = new FactMgr(fm);
         new_fm->clear_map_visited();
-        rec_fm->add_fact_mgr(cg_context->call_chain, new_fm);
+        rec_fm->add_fact_mgr(call_chain, new_fm);
         fm = new_fm;
     }
     fm->caller_to_callee_handover(rec_call, outputs);
@@ -529,7 +530,7 @@ RecursiveBlock::immediate_rec_func_find_fixed_point(RecursiveCGContext& rec_cg_c
     int cnt = 0;
     int min_num_iterations = rec_fm->get_max_fact_mgrs();
     do {
-        if (cnt++ > 7) {
+        if (cnt++ > 7 + min_num_iterations) {
             // takes too many iterations to reach a fixed point, must be something wrong
             assert(0);
         }

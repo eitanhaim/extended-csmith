@@ -118,8 +118,8 @@ RecursiveCGContext::init_merged_cg_context()
 {
     map<vector<const Block*>, CGContext*>::iterator iter = map_cg_contexts.begin();
     CGContext *cgc = iter->second;
-    Effect effect_accum = cgc->get_accum_effect();
-    merged_cg_context = new CGContext(*cgc, cgc->get_effect_context(), &effect_accum);
+    Effect *effect_accum = new Effect(cgc->get_accum_effect());
+    merged_cg_context = new CGContext(*cgc, cgc->get_effect_context(), effect_accum);
     iter++;
     
     for (; iter != map_cg_contexts.end(); iter++) {
