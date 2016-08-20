@@ -161,6 +161,7 @@ RecursiveBlock::make_random(RecursiveCGContext& rec_cg_context)
         if (s->must_return()) {
             break;
         }
+        s->update_maps();
     }
     if (Error::get_error() != SUCCESS) {
         curr_func->stack.pop_back();
@@ -255,6 +256,11 @@ RecursiveBlock::immediate_rec_call_post_creation_analysis(RecursiveCGContext& re
     FactVec outputs = fm->global_facts;
     prepare_for_next_iteration(outputs, rec_cg_context);
     while (!immediate_rec_call_find_fixed_point(outputs, rec_cg_context, fail_index, visit_once)) {
+        if (fail_index == before_block_size) {
+            Error::set_error(ERROR);
+            return;
+        }
+        
         size_t i;
         rec_cg_context.set_curr_cg_context(cg_context);
         rec_fm->set_curr_fact_mgr(fm);
@@ -528,7 +534,7 @@ RecursiveBlock::immediate_rec_func_find_fixed_point(RecursiveCGContext& rec_cg_c
     size_t i;
     static int g = 0;
     int cnt = 0;
-    int min_num_iterations = rec_fm->get_max_fact_mgrs();
+    int min_num_iterations = rec_fm->get_num_fact_mgrs();
     do {
         if (cnt++ > 7 + min_num_iterations) {
             // takes too many iterations to reach a fixed point, must be something wrong

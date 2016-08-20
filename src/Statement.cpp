@@ -1008,18 +1008,6 @@ Statement::post_creation_analysis(vector<const Fact*>& pre_facts, const Effect& 
 	fm->set_fact_out(this, fm->global_facts); 
 	fm->map_accum_effect[this] = *(cg_context.get_effect_accum());
 	fm->map_visited[this] = true;
-    
-    // ****************************** ExtendedCsmith ****************************** >>
-    if (CGOptions::recursion() && func->is_recursive() &&
-        dynamic_cast<RecursiveBlock*>(func->blocks[0])->outermost_rec_stmt) {
-        // we won't perform a map update when the current statement is in a loop
-        const Statement *container_stm = find_container_stm();
-        if (!container_stm ||
-            (container_stm->eType != eFor && container_stm->eType != eArrayOp)) {
-            update_maps();
-        }
-    }
-    // **************************************************************************** <<
 }
 
 // ****************************** ExtendedCsmith ****************************** >>
@@ -1027,7 +1015,6 @@ Statement::post_creation_analysis(vector<const Fact*>& pre_facts, const Effect& 
  * Updates the fact managers and the contexts in the corresponding maps.
  * This function is called when the current function is recursive,
  * and we have already generated the recursive call.
- * In addition, we won't perform this update when the current statement is in a loop.
  */
 void
 Statement::update_maps() const

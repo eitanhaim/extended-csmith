@@ -76,6 +76,11 @@ RecursiveFactMgr::rec_func_reset_map_fact_mgrs(const Statement* stm)
 void
 RecursiveFactMgr::update_map_fact_mgrs(const Statement* rec_if, const Statement*rec_block, const Statement* rec_stmt)
 {
+    // save the return facts of the first fact manager to global_ret_facts
+    FactVec ret_facts;
+    func->blocks[0]->add_back_return_facts(map_fact_mgrs.begin()->second, ret_facts);
+    global_ret_facts = ret_facts;
+    
     vector<const Block*> to_remove;
     map<vector<const Block*>, FactMgr*>::iterator iter;
     for (iter = map_fact_mgrs.begin(); iter != map_fact_mgrs.end(); iter++) {
@@ -107,11 +112,6 @@ RecursiveFactMgr::update_map_fact_mgrs(const Statement* rec_if, const Statement*
         }
     }
     map_fact_mgrs.erase(to_remove);
-    
-    // save the return facts of the first fact manager to global_ret_facts
-    FactVec ret_facts;
-    func->blocks[0]->add_back_return_facts(map_fact_mgrs.begin()->second, ret_facts);
-    global_ret_facts = ret_facts;
     
     init_merged_fact_mgr();
 }

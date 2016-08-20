@@ -152,6 +152,10 @@ public:
     
     const eFunctionType func_type;
     static ProbabilityTable<unsigned int, ProbName> *funcTable_;
+    
+    // flag indicating whether we arrived to the current function,
+    // by a call chain going through a recursive function
+    static bool through_recursive_func;
     // **************************************************************************** <<
 
 private:

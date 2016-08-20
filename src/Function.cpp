@@ -198,6 +198,7 @@ FunctionFilter::~FunctionFilter(void)
 // A table defining probabilities of different kinds of functions
 // Must initialize it before use
 ProbabilityTable<unsigned int, ProbName> *Function::funcTable_ = NULL;
+bool Function::through_recursive_func = false;
 
 void
 Function::InitProbabilityTable()
@@ -590,7 +591,7 @@ Function::make_random_signature(const CGContext& cg_context, const Type* type, c
 	
     // ****************************** ExtendedCsmith ****************************** >>
     int num_funcs;
-    if (CGOptions::recursion()) {
+    if (CGOptions::recursion() && !through_recursive_func) {
         // choose the function type
         Function::InitProbabilityTable();
         FunctionFilter filter(cg_context);
@@ -603,11 +604,13 @@ Function::make_random_signature(const CGContext& cg_context, const Type* type, c
                 break;
             case eImmediateRecursive:
                 f = new ImmediateRecursiveFunction(RandomFunctionName(), type);
+                through_recursive_func = true;
                 break;
             case eMutuallyRecursive:
                 num_funcs = MutuallyRecursiveFunction::MutuallyRecursiveFunctionProbability();
                 ERROR_GUARD(NULL);
                 f = new MutuallyRecursiveFunction(RandomFunctionName(), type, num_funcs);
+                through_recursive_func = true;
                 break;
             default:
                 assert(!"unknown function type");

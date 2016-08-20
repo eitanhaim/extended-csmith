@@ -262,6 +262,11 @@ FunctionInvocationUser::build_invocation_and_function(CGContext &cg_context, con
 		const Variable* var = func->new_globals[i];
 		caller_fm->add_new_var_fact_and_update_inout_maps(NULL, var);
 	}
+    
+    // ****************************** ExtendedCsmith ****************************** >>
+    if (func->is_recursive())
+        Function::through_recursive_func = false;
+    // **************************************************************************** <<
 
 	func->visited_cnt = 1;
 	return fiu; 
