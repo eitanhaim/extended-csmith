@@ -203,9 +203,9 @@ FunctionInvocationUser::build_invocation_and_function(CGContext &cg_context, con
 {
 	assert(type);		// return type must be provided
 	FactMgr* caller_fm = get_fact_mgr(&cg_context);
-	Effect running_eff_context(cg_context.get_effect_context()); 
+	Effect running_eff_context(cg_context.get_effect_context());
 	Function* func = Function::make_random_signature(cg_context, type, qfer);
-
+    
 	if (func->name == "func_51")
 		BREAK_NOP;		// for debugging
 	vector<const Expression*> param_values;
@@ -237,6 +237,17 @@ FunctionInvocationUser::build_invocation_and_function(CGContext &cg_context, con
 	Effect effect_accum; 
 	func->generate_body_with_known_params(cg_context, effect_accum); 
 
+    // ****************************** ExtendedCsmith ****************************** >>
+    if (CGOptions:: recursion() && func->is_recursive()) {
+        fm = get_fact_mgr_for_func(func);
+        if (!func->body) {
+            fiu->failed = true;
+            Function::through_recursive_func = false;
+            return fiu;
+        }
+    }
+    // **************************************************************************** <<
+    
 	// post creation processing
 	FactVec ret_facts = fm->map_facts_out[func->body];
 	func->body->add_back_return_facts(fm, ret_facts);
@@ -264,7 +275,7 @@ FunctionInvocationUser::build_invocation_and_function(CGContext &cg_context, con
 	}
     
     // ****************************** ExtendedCsmith ****************************** >>
-    if (func->is_recursive())
+    if (CGOptions:: recursion() && func->is_recursive())
         Function::through_recursive_func = false;
     // **************************************************************************** <<
 

@@ -83,6 +83,10 @@ public:
 	const std::vector<const Variable *>& get_write_vars(void) const { return write_vars;}
 	const std::vector<const Variable *>& get_lhs_write_vars(void) const { return lhs_write_vars;}
 	void set_lhs_write_vars(const std::vector<const Variable *>& vars)  { lhs_write_vars = vars;}
+    
+    // ****************************** ExtendedCsmith ****************************** >>
+    void copy_eff(Effect& eff);
+    // **************************************************************************** <<
 
 	typedef enum {
 		READ, WRITE

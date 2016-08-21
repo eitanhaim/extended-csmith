@@ -60,8 +60,11 @@ public:
     // maps call chains to contexts
     map<vector<const Block*>, CGContext*> map_cg_contexts;
     
-    // the fact manager constituting the merging of all the fact managers in the map
+    // the context constituting the merging of all the context in the map
     CGContext* merged_cg_context;
+    
+    // the context constituting the merging of all the first contexts in the map
+    CGContext* merged_first_cg_context;
 
 private:
     // the maximum number of contexts in this recursive context

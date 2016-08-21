@@ -644,6 +644,18 @@ Effect::union_field_is_read(void) const
 	return false;
 }
 
+// ****************************** ExtendedCsmith ****************************** >>
+void
+Effect::copy_eff(Effect& eff)
+{
+    read_vars = eff.read_vars;
+    write_vars = eff.write_vars;
+    lhs_write_vars = eff.lhs_write_vars;
+    pure = eff.pure;
+    side_effect_free = eff.side_effect_free;
+}
+// **************************************************************************** <<
+
 ///////////////////////////////////////////////////////////////////////////////
 
 // Local Variables:

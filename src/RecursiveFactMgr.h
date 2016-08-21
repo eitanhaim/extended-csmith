@@ -41,9 +41,7 @@ public:
     int get_num_fact_mgrs() const { return map_fact_mgrs.size(); }
     
     int get_max_fact_mgrs() const { return max_fact_mgrs; }
-    
-    FactVec get_pre_facts() const { return pre_facts; }
-    
+        
     const Function* get_func() const { return func; }
     
     FactVec get_global_ret_facts() const { return global_ret_facts; }
@@ -56,17 +54,20 @@ public:
     
     void update_map_fact_mgrs(const Statement* rec_if, const Statement*rec_block, const Statement* rec_stmt);
     
-    void init_merged_fact_mgr();
+    void init_merged_fact_mgr(const Statement* rec_stmt);
     
     void save_pre_facts();
     
-    void prepare_for_curr_iteration(FactVec& inputs);
+    void prepare_for_curr_iteration();
     
     // maps call chains to fact managers
     map<vector<const Block*>, FactMgr*> map_fact_mgrs;
     
     // the fact manager constituting the merging of all the fact managers in the map
     FactMgr* merged_fact_mgr;
+    
+    // the fact manager constituting the merging of all the first fact managers in the map
+    FactMgr* merged_first_fact_mgr;
     
 private:
     // the fact set to be returned to the non-recursive function,
@@ -86,10 +87,6 @@ private:
     // before generating the sub-block following the recursive call
     map<vector<const Block*>, FactVec> map_pre_facts;
     
-    // the global facts of merged_fact_mgr,
-    // before generating the sub-block following the recursive call
-    FactVec pre_facts;
-
         // maps call chains to fact managers
     map<vector<const Block*>, FactMgr*> map_deleted_fact_mgrs;
 };

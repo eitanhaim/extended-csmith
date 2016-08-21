@@ -75,6 +75,7 @@ RecursiveBlock::make_random(RecursiveCGContext& rec_cg_context)
     FactMgr *fm = rec_fm->get_curr_fact_mgr();
     fm->set_fact_in(b, fm->global_facts);
     Effect pre_effect = cg_context->get_accum_effect();
+    Effect* effect_accum = cg_context->get_effect_accum();
     
     // choose the actual size of this block
     b->actual_block_size = BlockProbability(*b) + 1;
@@ -180,6 +181,10 @@ RecursiveBlock::make_random(RecursiveCGContext& rec_cg_context)
         delete b;
         return NULL;
     }
+    
+    // update the external effect_accum
+    cg_context = rec_cg_context.get_curr_cg_context();
+    effect_accum->copy_eff(*cg_context->get_effect_accum());
     
     curr_func->stack.pop_back();
     if (Error::get_error() != SUCCESS) {
@@ -381,7 +386,6 @@ RecursiveBlock::prepare_for_next_iteration(FactVec& outputs, RecursiveCGContext&
     // create a new context for the next iteration
     if (rec_cg_context.get_num_cg_contexts() < rec_cg_context.get_max_cg_contexts()) {
         Effect *effect_accum = new Effect();
-        //Effect effect_context = cg_context->get_effect_context();
         CGContext *new_context = new CGContext(*cg_context, func, cg_context->get_effect_context(), effect_accum);
         rec_cg_context.add_cg_context(new_context);
         call_chain = new_context->call_chain;
@@ -440,10 +444,11 @@ void
 RecursiveBlock::immediate_rec_func_post_creation_analysis(RecursiveCGContext& rec_cg_context)
 {
     RecursiveFactMgr *rec_fm = get_rec_fact_mgr_for_func(func);
-    CGContext *cg_context = rec_cg_context.get_curr_cg_context();
-    FactMgr* fm = rec_fm->get_curr_fact_mgr();
+    CGContext *cg_context = rec_cg_context.map_cg_contexts.rbegin()->second;
+    FactMgr* fm = rec_fm->map_fact_mgrs.rbegin()->second;
+    rec_cg_context.set_curr_cg_context(cg_context);
+    rec_fm->set_curr_fact_mgr(fm);
     
-    vector<const Fact*> post_facts = fm->global_facts;
     update_maps_for_curr_blk(rec_cg_context);
     
     // perform DFA analysis
@@ -451,6 +456,9 @@ RecursiveBlock::immediate_rec_func_post_creation_analysis(RecursiveCGContext& re
     bool visit_once = false;
     rec_cg_context.reset_effect_accums();
     while (!immediate_rec_func_find_fixed_point(rec_cg_context, fail_index, visit_once)) {
+        rec_cg_context.set_curr_cg_context(cg_context);
+        rec_fm->set_curr_fact_mgr(fm);
+        
         size_t i, len;
         len = stms.size();
         for (i = fail_index; i < len; i++) {
@@ -472,7 +480,10 @@ RecursiveBlock::immediate_rec_func_post_creation_analysis(RecursiveCGContext& re
     // make sure we add back return statement for blocks that require it and had such statement deleted
     // only do this for top-level block of a function which requires a return statement
     if (parent == 0 && func->need_return_stmt() && !must_return()) {
-        fm->global_facts = post_facts;
+        CGContext *cg_context = rec_cg_context.merged_first_cg_context;
+        FactMgr* fm = rec_fm->merged_first_fact_mgr;
+        rec_cg_context.set_curr_cg_context(cg_context);
+        rec_fm->set_curr_fact_mgr(fm);
         Statement* sr = append_return_stmt(*cg_context);
         fm->set_fact_out(this, fm->map_facts_out[sr]);
     }
@@ -490,8 +501,6 @@ RecursiveBlock::update_maps_for_curr_blk(RecursiveCGContext& rec_cg_context) con
     map<vector<const Block*>, CGContext*>::iterator iter_cgc;
     map<vector<const Block*>, FactMgr*>::iterator iter_fm;
     
-    Effect eff;
-    FactVec outputs;
     for (iter_cgc = map_cg_contexts.begin(), iter_fm = map_fact_mgrs.begin();
          iter_cgc != map_cg_contexts.end() && iter_fm != map_fact_mgrs.end(); iter_cgc++, iter_fm++) {
         CGContext *cg_context = iter_cgc->second;
@@ -503,13 +512,18 @@ RecursiveBlock::update_maps_for_curr_blk(RecursiveCGContext& rec_cg_context) con
         fm->remove_rv_facts(fm->global_facts);
         fm->set_fact_out(this, fm->global_facts);
         
-        eff.add_effect(fm->map_stm_effect[this]);
-        merge_facts(outputs, fm->global_facts);
+        if (iter_cgc == map_cg_contexts.begin() && iter_fm == map_fact_mgrs.begin()) { // first element
+            if (rec_cg_context.merged_first_cg_context && rec_fm->merged_first_fact_mgr) {
+                rec_cg_context.merged_first_cg_context->add_effect(*cg_context->get_effect_accum());
+                merge_facts(rec_fm->merged_first_fact_mgr->global_facts, fm->global_facts);
+
+            } else {
+                Effect *effect_accum = new Effect(cg_context->get_accum_effect());
+                rec_cg_context.merged_first_cg_context = new CGContext(*cg_context, cg_context->get_effect_context(), effect_accum);
+                rec_fm->merged_first_fact_mgr = new FactMgr(fm);
+            }
+        }
     }
-    
-    rec_fm->merged_fact_mgr->map_visited[this] = true;
-    rec_fm->merged_fact_mgr->set_fact_out(this, outputs);
-    rec_fm->merged_fact_mgr->map_stm_effect[this] = eff;
 }
 
 /**
@@ -524,8 +538,6 @@ bool
 RecursiveBlock::immediate_rec_func_find_fixed_point(RecursiveCGContext& rec_cg_context, int& fail_index, bool visit_once) const
 {
     RecursiveFactMgr *rec_fm = get_rec_fact_mgr_for_func(func);
-    CGContext *cg_context = rec_cg_context.get_curr_cg_context();
-    FactVec inputs = rec_fm->get_pre_facts();
     map<vector<const Block*>, CGContext*>& map_cg_contexts = rec_cg_context.map_cg_contexts;
     map<vector<const Block*>, FactMgr*>& map_fact_mgrs = rec_fm->map_fact_mgrs;
     map<vector<const Block*>, CGContext*>::iterator iter_cgc;
@@ -542,19 +554,18 @@ RecursiveBlock::immediate_rec_func_find_fixed_point(RecursiveCGContext& rec_cg_c
         }
         
         rec_cg_context.prepare_for_curr_iteration();
-        rec_fm->prepare_for_curr_iteration(inputs);
+        rec_fm->prepare_for_curr_iteration();
         
         // if we have never visited the block, force the visitor to go through all statements at least once
         if (!visit_once && cnt >= min_num_iterations) {
-            int shortcut = shortcut_post_analysis(inputs, *cg_context);
+            assert(rec_fm->get_num_fact_mgrs() == 1);
+            CGContext *cg_context = rec_cg_context.map_cg_contexts.rbegin()->second;
+            FactMgr* fm = rec_fm->map_fact_mgrs.rbegin()->second;
+            rec_cg_context.set_curr_cg_context(cg_context);
+            rec_fm->set_curr_fact_mgr(fm);
+            
+            int shortcut = shortcut_post_analysis(fm->global_facts, *cg_context);
             if (shortcut == 0) return true;
-        }
-        
-        FactVec outputs = inputs;
-        // add facts for locals
-        for (i=0; i<local_vars.size(); i++) {
-            const Variable* v = local_vars[i];
-            FactMgr::add_new_var_fact(v, outputs);
         }
         
         // revisit statements with new inputs
@@ -565,6 +576,14 @@ RecursiveBlock::immediate_rec_func_find_fixed_point(RecursiveCGContext& rec_cg_c
                 FactMgr *fm = iter_fm->second;
                 rec_cg_context.set_curr_cg_context(cg_context);
                 rec_fm->set_curr_fact_mgr(fm);
+                
+                FactVec inputs = fm->global_facts;
+                
+                // add facts for locals
+                for (i=0; i<local_vars.size(); i++) {
+                    const Variable* v = local_vars[i];
+                    FactMgr::add_new_var_fact(v, fm->global_facts);
+                }
 
                 int h = g++;
                 if (h == 2585)
@@ -573,27 +592,8 @@ RecursiveBlock::immediate_rec_func_find_fixed_point(RecursiveCGContext& rec_cg_c
                     fail_index = i;
                     return false;
                 }
-                
-                // update merged_cg_context and merged_fact_mgr
-                if (iter_cgc == map_cg_contexts.begin() && iter_fm == map_fact_mgrs.begin()) {
-                    Effect effect_accum = cg_context->get_accum_effect();
-                    Effect eff_stm = cg_context->get_effect_stm();
-                    rec_cg_context.merged_cg_context->reset_effect_accum(effect_accum);
-                    rec_cg_context.merged_cg_context->reset_effect_stm(eff_stm);
-                    rec_fm->merged_fact_mgr->global_facts = fm->global_facts;
-                } else {
-                    rec_cg_context.merged_cg_context->add_effect(*cg_context->get_effect_accum());
-                    merge_facts(rec_fm->merged_fact_mgr->global_facts, fm->global_facts);
-                }
             }
-            
-            // set the map values of merged_cg_context and merged_fact_mgr
-            rec_fm->merged_fact_mgr->set_fact_out(this, rec_fm->merged_fact_mgr->global_facts);
-            rec_fm->merged_fact_mgr->map_accum_effect[this] = *(rec_cg_context.merged_cg_context->get_effect_accum());
-            rec_fm->merged_fact_mgr->map_stm_effect[this] = rec_cg_context.merged_cg_context->get_effect_stm();
         }
-        rec_cg_context.set_curr_cg_context(rec_cg_context.merged_cg_context);
-        rec_fm->set_curr_fact_mgr(rec_fm->merged_fact_mgr);
         
         // set map values for the current block
         update_maps_for_curr_blk(rec_cg_context);

@@ -155,6 +155,15 @@ bool StatementFilter::filter(int value) const
 	bool no_return = (return_type->eType == eSimple && return_type->simple_type == eVoid);
     
     // ****************************** ExtendedCsmith ****************************** >>
+    if (CGOptions::recursion()) {
+        Function *curr_func = cg_context_.get_current_func();
+        if (curr_func->is_recursive()) {
+            RecursiveBlock* rec_block = dynamic_cast<RecursiveBlock*>(curr_func->blocks[0]);
+            if (rec_block->outermost_rec_stmt &&
+                (type == eFor || type == eArrayOp || type == eGoto))
+                    return true;
+        }
+    }
     if (CGOptions::mutual_recursion()) {
         Function *curr_func = cg_context_.get_current_func();
         if (curr_func->func_type == eMutuallyRecursive) {
@@ -1043,10 +1052,10 @@ Statement::update_maps() const
         
         // update merged_cg_context and merged_fact_mgr
         if (iter_cgc == map_cg_contexts.begin() && iter_fm == map_fact_mgrs.begin()) {
-            Effect effect_accum = cg_context->get_accum_effect();
-            Effect eff_stm = cg_context->get_effect_stm();
-            rec_cg_context->merged_cg_context->reset_effect_accum(effect_accum);
-            rec_cg_context->merged_cg_context->reset_effect_stm(eff_stm);
+            Effect *eff_accum = new Effect(cg_context->get_accum_effect());
+            Effect *eff_stm = new Effect(cg_context->get_effect_stm());
+            rec_cg_context->merged_cg_context->reset_effect_accum(*eff_accum);
+            rec_cg_context->merged_cg_context->reset_effect_stm(*eff_stm);
             rec_fm->merged_fact_mgr->global_facts = fm->global_facts;
         } else {
             rec_cg_context->merged_cg_context->add_effect(*cg_context->get_effect_accum());

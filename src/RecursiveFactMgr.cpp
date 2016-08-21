@@ -16,6 +16,8 @@
 RecursiveFactMgr::RecursiveFactMgr(vector<const Block*> call_chain, FactMgr* fact_mgr)
     : curr_fact_mgr(fact_mgr),
       func(fact_mgr->func),
+      merged_fact_mgr(NULL),
+      merged_first_fact_mgr(NULL),
       max_fact_mgrs(CGOptions::max_fact_sets_in_inclusive_fact_set())
 {
     map_fact_mgrs[call_chain] = fact_mgr;
@@ -66,7 +68,7 @@ RecursiveFactMgr::rec_func_reset_map_fact_mgrs(const Statement* stm)
         FactMgr* fm = iter->second;
         fm->reset_stm_fact_maps(stm);
         fm->global_facts = map_pre_facts[call_chain];
-        fm->cfg_edges = merged_fact_mgr->cfg_edges;
+        fm->cfg_edges = curr_fact_mgr->cfg_edges;
     }
 }
 
@@ -113,7 +115,7 @@ RecursiveFactMgr::update_map_fact_mgrs(const Statement* rec_if, const Statement*
     }
     map_fact_mgrs.erase(to_remove);
     
-    init_merged_fact_mgr();
+    init_merged_fact_mgr(rec_stmt);
 }
 
 /**
@@ -121,16 +123,26 @@ RecursiveFactMgr::update_map_fact_mgrs(const Statement* rec_if, const Statement*
  * just before starting to build the sub-block after the recursive call.
  */
 void
-RecursiveFactMgr::init_merged_fact_mgr()
+RecursiveFactMgr::init_merged_fact_mgr(const Statement* rec_stmt)
 {
-    map<vector<const Block*>, FactMgr*>::iterator iter = map_fact_mgrs.begin();
-    FactMgr *fm = iter->second;
-    merged_fact_mgr = new FactMgr(fm);
-    iter++;
-    
-    for (; iter != map_fact_mgrs.end(); iter++) {
-        fm = iter->second;
+    merged_fact_mgr = new FactMgr(func);
+
+    map<vector<const Block*>, FactMgr*>::iterator iter;
+    for (iter = map_fact_mgrs.begin(); iter != map_fact_mgrs.end(); iter++) {
+        FactMgr *fm = iter->second;
         merge_facts(merged_fact_mgr->global_facts, fm->global_facts);
+        
+        vector<Statement *> stms = func->blocks[0]->stms;
+        for (size_t i=0; i<stms.size(); i++) {
+            merge_facts(merged_fact_mgr->map_facts_in[stms[i]], fm->map_facts_in[stms[i]]);
+            merge_facts(merged_fact_mgr->map_facts_out[stms[i]], fm->map_facts_out[stms[i]]);
+        }
+        merge_facts(merged_fact_mgr->map_facts_out[rec_stmt], fm->map_facts_out[rec_stmt]);
+        
+        if (iter ==  map_fact_mgrs.begin()) {
+            merged_fact_mgr->map_visited = fm->map_visited;
+            merged_fact_mgr->cfg_edges = fm->cfg_edges;
+        }
     }
     
     curr_fact_mgr = merged_fact_mgr;
@@ -148,8 +160,6 @@ RecursiveFactMgr::save_pre_facts()
         FactMgr *fm = iter->second;
         map_pre_facts[call_chain] = fm->global_facts;
     }
-    
-    pre_facts = merged_fact_mgr->global_facts;
 }
 
 /**
@@ -157,7 +167,7 @@ RecursiveFactMgr::save_pre_facts()
  * performed after generating the recursive call.
  */
 void
-RecursiveFactMgr::prepare_for_curr_iteration(FactVec& inputs)
+RecursiveFactMgr::prepare_for_curr_iteration()
 {
     vector<const Block*> to_remove;
     map<vector<const Block*>, FactMgr*>::iterator iter;
@@ -187,8 +197,6 @@ RecursiveFactMgr::prepare_for_curr_iteration(FactVec& inputs)
         if (iter == map_fact_mgrs.begin()) { // first fact manager
             merge_facts(global_ret_facts, outputs);
         }
-        
-        merge_facts(inputs, facts_copy);
     }
     
     // remove the penultimate fact manager
