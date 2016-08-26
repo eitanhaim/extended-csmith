@@ -263,7 +263,7 @@ OutputMgr::OutputHeader(int argc, char *argv[], unsigned long seed)
 		out << "/*" << endl;
 		out << " * This is a RANDOMLY GENERATED PROGRAM." << endl;
 		out << " *" << endl;
-		//out << " * Generator: " << PACKAGE_STRING << endl;
+		out << " * Generator: " << PACKAGE_STRING << endl;
 #ifdef GIT_VERSION
 		out << " * Git version: " << GIT_VERSION << endl;
 #endif
