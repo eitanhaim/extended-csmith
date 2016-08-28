@@ -149,6 +149,7 @@ public:
     static eFunctionType number_to_type(unsigned int value);
     eFunctionType get_func_type(void) const { return func_type; }
     bool is_recursive(void) const { return func_type == eImmediateRecursive || func_type == eMutuallyRecursive; }
+    void remove_from_lists(void);
     
     const eFunctionType func_type;
     static ProbabilityTable<unsigned int, ProbName> *funcTable_;

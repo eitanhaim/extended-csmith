@@ -138,12 +138,13 @@ RecursiveBlock::make_random(RecursiveCGContext& rec_cg_context)
     }
     
     // perform DFA analysis after generating the recursive call
+    bool is_ok;
     if (curr_func->func_type == eImmediateRecursive)
-        b->immediate_rec_call_post_creation_analysis(rec_cg_context, pre_effect);
+        is_ok = b->immediate_rec_call_post_creation_analysis(rec_cg_context, pre_effect);
     else
-        b->mutually_rec_call_post_creation_analysis(rec_cg_context, pre_effect);
+        is_ok = b->mutually_rec_call_post_creation_analysis(rec_cg_context, pre_effect);
 
-    if (Error::get_error() != SUCCESS) {
+    if (!is_ok || Error::get_error() != SUCCESS) {
         curr_func->stack.pop_back();
         delete b;
         return NULL;
@@ -239,7 +240,7 @@ RecursiveBlock::add_back_post_return_facts(FactMgr* fm, std::vector<const Fact*>
  *
  * Also performs effect analysis.
  */
-void
+bool
 RecursiveBlock::immediate_rec_call_post_creation_analysis(RecursiveCGContext& rec_cg_context, const Effect& pre_effect)
 {
     RecursiveFactMgr *rec_fm = get_rec_fact_mgr_for_func(func);
@@ -261,10 +262,8 @@ RecursiveBlock::immediate_rec_call_post_creation_analysis(RecursiveCGContext& re
     FactVec outputs = fm->global_facts;
     prepare_for_next_iteration(outputs, rec_cg_context);
     while (!immediate_rec_call_find_fixed_point(outputs, rec_cg_context, fail_index, visit_once)) {
-        if (fail_index == before_block_size) {
-            Error::set_error(ERROR);
-            return;
-        }
+        if (fail_index == before_block_size)
+            return false;
         
         size_t i;
         rec_cg_context.set_curr_cg_context(cg_context);
@@ -291,6 +290,8 @@ RecursiveBlock::immediate_rec_call_post_creation_analysis(RecursiveCGContext& re
     get_rec_stmts(rec_if, rec_block, rec_stmt);
     rec_fm->update_map_fact_mgrs(rec_if, rec_block, rec_stmt);
     rec_cg_context.update_map_cg_contexts(rec_if, rec_block, rec_stmt);
+    
+    return true;
 }
 
 /**
@@ -426,10 +427,11 @@ RecursiveBlock::get_rec_stmts(const Statement*& rec_if, const Statement*& rec_bl
  *
  * Also performs effect analysis.
  */
-void
+bool
 RecursiveBlock::mutually_rec_call_post_creation_analysis(RecursiveCGContext& rec_cg_context, const Effect& pre_effect)
 {
     // TODO: complete
+    return true;
 }
 
 /**
@@ -576,8 +578,6 @@ RecursiveBlock::immediate_rec_func_find_fixed_point(RecursiveCGContext& rec_cg_c
                 FactMgr *fm = iter_fm->second;
                 rec_cg_context.set_curr_cg_context(cg_context);
                 rec_fm->set_curr_fact_mgr(fm);
-                
-                FactVec inputs = fm->global_facts;
                 
                 // add facts for locals
                 for (i=0; i<local_vars.size(); i++) {

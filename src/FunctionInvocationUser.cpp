@@ -243,6 +243,9 @@ FunctionInvocationUser::build_invocation_and_function(CGContext &cg_context, con
         if (!func->body) {
             fiu->failed = true;
             Function::through_recursive_func = false;
+            fiu->func = NULL;
+            func->remove_from_lists();
+            delete func;
             return fiu;
         }
     }

@@ -54,7 +54,7 @@ public:
     
     void update_map_fact_mgrs(const Statement* rec_if, const Statement*rec_block, const Statement* rec_stmt);
     
-    void init_merged_fact_mgr(const Statement* rec_stmt);
+    void init_merged_fact_mgr();
     
     void save_pre_facts();
     

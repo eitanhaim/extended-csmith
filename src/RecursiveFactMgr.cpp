@@ -25,7 +25,11 @@ RecursiveFactMgr::RecursiveFactMgr(vector<const Block*> call_chain, FactMgr* fac
 
 RecursiveFactMgr::~RecursiveFactMgr(void)
 {
-    delete merged_fact_mgr;
+    if (merged_fact_mgr)
+        merged_fact_mgr = NULL;
+    
+    if (merged_first_fact_mgr)
+        merged_first_fact_mgr = NULL;
 }
 
 /**
@@ -115,7 +119,7 @@ RecursiveFactMgr::update_map_fact_mgrs(const Statement* rec_if, const Statement*
     }
     map_fact_mgrs.erase(to_remove);
     
-    init_merged_fact_mgr(rec_stmt);
+    init_merged_fact_mgr();
 }
 
 /**
@@ -123,7 +127,7 @@ RecursiveFactMgr::update_map_fact_mgrs(const Statement* rec_if, const Statement*
  * just before starting to build the sub-block after the recursive call.
  */
 void
-RecursiveFactMgr::init_merged_fact_mgr(const Statement* rec_stmt)
+RecursiveFactMgr::init_merged_fact_mgr()
 {
     merged_fact_mgr = new FactMgr(func);
 
@@ -132,12 +136,19 @@ RecursiveFactMgr::init_merged_fact_mgr(const Statement* rec_stmt)
         FactMgr *fm = iter->second;
         merge_facts(merged_fact_mgr->global_facts, fm->global_facts);
         
-        vector<Statement *> stms = func->blocks[0]->stms;
-        for (size_t i=0; i<stms.size(); i++) {
-            merge_facts(merged_fact_mgr->map_facts_in[stms[i]], fm->map_facts_in[stms[i]]);
-            merge_facts(merged_fact_mgr->map_facts_out[stms[i]], fm->map_facts_out[stms[i]]);
+        map<const Statement*, FactVec>::iterator iter_facts_in;
+        for (iter_facts_in = fm->map_facts_in.begin(); iter_facts_in != fm->map_facts_in.end(); iter_facts_in++) {
+            const Statement* stm = iter_facts_in->first;
+            FactVec facts_in = iter_facts_in->second;
+            merge_facts(merged_fact_mgr->map_facts_in[stm], facts_in);
         }
-        merge_facts(merged_fact_mgr->map_facts_out[rec_stmt], fm->map_facts_out[rec_stmt]);
+
+        map<const Statement*, FactVec>::iterator iter_facts_out;
+        for (iter_facts_out = fm->map_facts_out.begin(); iter_facts_out != fm->map_facts_out.end(); iter_facts_out++) {
+            const Statement* stm = iter_facts_out->first;
+            FactVec facts_out = iter_facts_out->second;
+            merge_facts(merged_fact_mgr->map_facts_out[stm], facts_out);
+        }
         
         if (iter ==  map_fact_mgrs.begin()) {
             merged_fact_mgr->map_visited = fm->map_visited;

@@ -107,7 +107,7 @@ static unsigned long g_Seed = 0;
 static void
 print_version(void)
 {
-	cout << PACKAGE_STRING << endl;
+	//cout << PACKAGE_STRING << endl;
 #ifdef GIT_VERSION
 	cout << "Git version: " << GIT_VERSION << endl;
 #endif

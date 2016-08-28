@@ -26,7 +26,11 @@ RecursiveCGContext::RecursiveCGContext(CGContext* cg_context)
 
 RecursiveCGContext::~RecursiveCGContext(void)
 {
-    delete merged_cg_context;
+    if (merged_cg_context)
+        merged_cg_context = NULL;
+    
+    if (merged_first_cg_context)
+        merged_first_cg_context = NULL;
 }
 
 /**
@@ -121,17 +125,25 @@ RecursiveCGContext::init_merged_cg_context()
     CGContext *last_cgc = map_cg_contexts.rbegin()->second;
     merged_cg_context = new CGContext(*last_cgc, last_cgc->get_effect_context(), new Effect(last_cgc->get_accum_effect()));
     
-    vector<Statement *> stms = func->blocks[0]->stms;
+    RecursiveFactMgr *rec_fm = get_rec_fact_mgr_for_func(func);
     map<vector<const Block*>, CGContext*>::iterator iter;
     for (iter = map_cg_contexts.begin(); iter != map_cg_contexts.end(); iter++) {
         CGContext *cgc = iter->second;
-        merged_cg_context->add_effect(*cgc->get_effect_accum());
-            
-        RecursiveFactMgr *rec_fm = get_rec_fact_mgr_for_func(func);
         FactMgr* fm = rec_fm->get_fact_mgr(cgc);
-        for (size_t i=0; i<stms.size(); i++) {
-            fm->map_stm_effect[stms[i]].add_effect(cgc->get_effect_stm());
-            fm->map_accum_effect[stms[i]].add_effect(*cgc->get_effect_accum());
+        merged_cg_context->add_effect(*cgc->get_effect_accum());
+        
+        map<const Statement*, Effect>::iterator iter_stm_effect;
+        for (iter_stm_effect = fm->map_stm_effect.begin(); iter_stm_effect != fm->map_stm_effect.end(); iter_stm_effect++) {
+            const Statement* stm = iter_stm_effect->first;
+            Effect effect_stm = iter_stm_effect->second;
+            rec_fm->merged_fact_mgr->map_stm_effect[stm].add_effect(effect_stm);
+        }
+        
+        map<const Statement*, Effect>::iterator iter_accum_eff;
+        for (iter_accum_eff = fm->map_accum_effect.begin(); iter_accum_eff != fm->map_accum_effect.end(); iter_accum_eff++) {
+            const Statement* stm = iter_accum_eff->first;
+            Effect effect_accum = iter_accum_eff->second;
+            rec_fm->merged_fact_mgr->map_accum_effect[stm].add_effect(effect_accum);
         }
     }
     

@@ -34,9 +34,9 @@ public:
     
     void add_back_post_return_facts(FactMgr* fm, std::vector<const Fact*>& facts) const;
     
-    void immediate_rec_call_post_creation_analysis(RecursiveCGContext& rec_cg_context, const Effect& pre_effect);
+    bool immediate_rec_call_post_creation_analysis(RecursiveCGContext& rec_cg_context, const Effect& pre_effect);
     
-    void mutually_rec_call_post_creation_analysis(RecursiveCGContext& rec_cg_context, const Effect& pre_effect);
+    bool mutually_rec_call_post_creation_analysis(RecursiveCGContext& rec_cg_context, const Effect& pre_effect);
 
     void immediate_rec_func_post_creation_analysis(RecursiveCGContext& rec_cg_context);
     

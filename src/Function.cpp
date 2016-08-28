@@ -170,6 +170,36 @@ get_rec_cg_context_for_func(const Function* func)
     return 0;
 }
 
+/**
+ * Removes this function from the lists FMList, RFMList and RCGCList.
+ * Used for deallocation of a recursive function.
+ */
+void
+Function::remove_from_lists(void)
+{
+    for (size_t i = 0; i < FuncList.size(); i++) {
+        if (FuncList[i] == this) {
+            FMList.erase(FMList.begin() + i);
+            break;
+        }
+    }
+    
+    assert(RFMList.size() == RCGCList.size());
+    int to_remove;
+    for (size_t i = 0; i < RFMList.size(); i++) {
+        if (RFMList[i]->get_func() == this) {
+            to_remove = i;
+            break;
+        }
+    }
+ 
+    RFMList.erase(RFMList.begin() + to_remove);
+    RCGCList.erase(RCGCList.begin() + to_remove);
+    
+    FuncList.erase(std::remove(FuncList.begin(), FuncList.end(), this), FuncList.end());
+}
+
+
 ///////////////////////////////////////////////////////////////////////////////
 
 class FunctionFilter : public Filter
@@ -905,9 +935,11 @@ Function::generate_body_with_known_params(const CGContext &prev_context, Effect&
         // then fill in the function body
         RecursiveFactMgr* rec_fm = new RecursiveFactMgr(cg_context.call_chain, fm);
         add_recursive_fact_mgr(rec_fm);
-        RecursiveCGContext rec_cg_context (&cg_context);
-        add_recursive_cg_context(&rec_cg_context);
-        body = RecursiveBlock::make_random(rec_cg_context);
+        RecursiveCGContext* rec_cg_context = new RecursiveCGContext(&cg_context);
+        add_recursive_cg_context(rec_cg_context);
+        body = RecursiveBlock::make_random(*rec_cg_context);
+        if (!body)
+            return;
     } else {
         // fill in the function body
         body = Block::make_random(cg_context);
@@ -1119,6 +1151,21 @@ Function::doFinalization(void)
 		delete (*i);
 	}
 	FMList.clear();
+    
+    // ****************************** ExtendedCsmith ****************************** >>
+    std::vector<RecursiveFactMgr*>::iterator iter_fm;
+    for (iter_fm = RFMList.begin(); iter_fm != RFMList.end(); iter_fm++) {
+        delete (*iter_fm);
+    }
+    RFMList.clear();
+    
+    std::vector<RecursiveCGContext*>::iterator iter_cgc;
+    for (iter_cgc = RCGCList.begin(); iter_cgc != RCGCList.end(); iter_cgc++) {
+        delete (*iter_cgc);
+    }
+    RCGCList.clear();
+    // **************************************************************************** <<
+    
 	FactMgr::doFinalization();
 }
 
