@@ -130,7 +130,8 @@ RecursiveCGContext::init_merged_cg_context()
     for (iter = map_cg_contexts.begin(); iter != map_cg_contexts.end(); iter++) {
         CGContext *cgc = iter->second;
         FactMgr* fm = rec_fm->get_fact_mgr(cgc);
-        merged_cg_context->add_effect(*cgc->get_effect_accum());
+        if (cgc != last_cgc)
+            merged_cg_context->add_effect(*cgc->get_effect_accum());
         
         map<const Statement*, Effect>::iterator iter_stm_effect;
         for (iter_stm_effect = fm->map_stm_effect.begin(); iter_stm_effect != fm->map_stm_effect.end(); iter_stm_effect++) {

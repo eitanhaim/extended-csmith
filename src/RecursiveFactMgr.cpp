@@ -198,7 +198,7 @@ RecursiveFactMgr::prepare_for_curr_iteration()
         FactVec ret_facts;
         rec_block->add_back_post_return_facts(next_fm, ret_facts);
         rec_block->rec_call->save_return_fact(ret_facts);
-        FactVec outputs = fm->map_facts_out[rec_block];
+        FactVec outputs = next_fm->map_facts_out[rec_block];
         merge_facts(outputs, ret_facts);
         Statement *first_stm = rec_block->stms[rec_block->before_block_size + 1];
         FactVec& facts_copy = fm->map_facts_in[first_stm];

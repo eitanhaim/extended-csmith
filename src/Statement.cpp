@@ -1039,9 +1039,16 @@ Statement::update_maps() const
          iter_cgc != map_cg_contexts.end() && iter_fm != map_fact_mgrs.end(); iter_cgc++, iter_fm++) {
         CGContext *cg_context = iter_cgc->second;
         FactMgr *fm = iter_fm->second;
+        
+        if (eType == eIfElse) {
+            ((const StatementIf*)this)->combine_branch_facts(fm->global_facts);
+        } else {
+            fm->makeup_new_var_facts(fm->global_facts, rec_fm->get_curr_fact_mgr()->global_facts);
+        }
+
         rec_cg_context->set_curr_cg_context(cg_context);
         rec_fm->set_curr_fact_mgr(fm);
-        
+
         // update the current context and the current fact manager
         vector<const Fact*> inputs_copy = fm->global_facts;
         if (!stm_visit_facts(fm->global_facts, *cg_context))

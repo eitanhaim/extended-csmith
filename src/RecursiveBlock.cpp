@@ -101,11 +101,19 @@ RecursiveBlock::make_random(RecursiveCGContext& rec_cg_context)
     if (!is_immediate_or_first_mutually)
         mr_func->is_building_before = true;
     for (int i = 0; i < b->before_block_size; i++) {
+        map<const Statement*, FactVec> facts_in_copy = fm->map_facts_in;
+        map<const Statement*, FactVec> facts_out_copy = fm->map_facts_out;
+        map<const Statement*, Effect>  stm_effect_copy = fm->map_stm_effect;
+        map<const Statement*, Effect>  accum_effect_copy = fm->map_accum_effect;
         FactVec pre_facts = fm->global_facts;
         Effect pre_effect = cg_context->get_accum_effect();
         
         Statement *s = Statement::make_random(*cg_context);
         if (!s || s->must_return()) {
+            fm->map_facts_in = facts_in_copy;
+            fm->map_facts_out = facts_out_copy;
+            fm->map_stm_effect = stm_effect_copy;
+            fm->map_accum_effect = accum_effect_copy;
             cg_context->reset_effect_accum(pre_effect);
             fm->restore_facts(pre_facts);
             delete s;
@@ -160,10 +168,10 @@ RecursiveBlock::make_random(RecursiveCGContext& rec_cg_context)
         if (!s)
             break;
         b->stms.push_back(s);
+        s->update_maps();
         if (s->must_return()) {
             break;
         }
-        s->update_maps();
     }
     if (Error::get_error() != SUCCESS) {
         curr_func->stack.pop_back();
@@ -386,7 +394,8 @@ RecursiveBlock::prepare_for_next_iteration(FactVec& outputs, RecursiveCGContext&
     
     // create a new context for the next iteration
     if (rec_cg_context.get_num_cg_contexts() < rec_cg_context.get_max_cg_contexts()) {
-        Effect *effect_accum = new Effect();
+        //Effect *effect_accum = new Effect();
+        Effect *effect_accum = new Effect(cg_context->get_accum_effect());
         CGContext *new_context = new CGContext(*cg_context, func, cg_context->get_effect_context(), effect_accum);
         rec_cg_context.add_cg_context(new_context);
         call_chain = new_context->call_chain;
@@ -545,7 +554,6 @@ RecursiveBlock::immediate_rec_func_find_fixed_point(RecursiveCGContext& rec_cg_c
     map<vector<const Block*>, CGContext*>::iterator iter_cgc;
     map<vector<const Block*>, FactMgr*>::iterator iter_fm;
     
-    size_t i;
     static int g = 0;
     int cnt = 0;
     int min_num_iterations = rec_fm->get_num_fact_mgrs();
@@ -571,7 +579,7 @@ RecursiveBlock::immediate_rec_func_find_fixed_point(RecursiveCGContext& rec_cg_c
         }
         
         // revisit statements with new inputs
-        for (i=before_block_size + 1; i<stms.size(); i++) {
+        for (size_t i=before_block_size + 1; i<stms.size(); i++) {
             for (iter_cgc = map_cg_contexts.begin(), iter_fm = map_fact_mgrs.begin();
                  iter_cgc != map_cg_contexts.end() && iter_fm != map_fact_mgrs.end(); iter_cgc++, iter_fm++) {
                 CGContext *cg_context = iter_cgc->second;
@@ -580,8 +588,8 @@ RecursiveBlock::immediate_rec_func_find_fixed_point(RecursiveCGContext& rec_cg_c
                 rec_fm->set_curr_fact_mgr(fm);
                 
                 // add facts for locals
-                for (i=0; i<local_vars.size(); i++) {
-                    const Variable* v = local_vars[i];
+                for (size_t j=0; j<local_vars.size(); j++) {
+                    const Variable* v = local_vars[j];
                     FactMgr::add_new_var_fact(v, fm->global_facts);
                 }
 
