@@ -14,6 +14,7 @@
 #include "FunctionInvocationUser.h"
 
 class RecursiveCGContext;
+class MutuallyRecursiveFunction;
 
 using namespace std;
 
@@ -36,15 +37,20 @@ public:
     
     bool immediate_rec_call_post_creation_analysis(RecursiveCGContext& rec_cg_context, const Effect& pre_effect);
     
-    bool mutually_rec_call_post_creation_analysis(RecursiveCGContext& rec_cg_context, const Effect& pre_effect);
+    static bool mutually_rec_call_post_creation_analysis(MutuallyRecursiveFunction *last_func);
 
     void immediate_rec_func_post_creation_analysis(RecursiveCGContext& rec_cg_context);
     
-    void mutually_rec_func_post_creation_analysis(RecursiveCGContext& rec_cg_context);
+    static void mutually_rec_func_post_creation_analysis(MutuallyRecursiveFunction *first_func);
         
     bool immediate_rec_call_find_fixed_point(FactVec outputs, RecursiveCGContext& rec_cg_context, int& fail_index, bool visit_once) const;
     
+    static bool mutually_rec_call_find_fixed_point(FactVec outputs, MutuallyRecursiveFunction *first_func, int& fail_index,
+                                                   MutuallyRecursiveFunction *&failed_func, bool visit_once);
+    
     bool immediate_rec_func_find_fixed_point(RecursiveCGContext& rec_cg_context, int& fail_index, bool visit_once) const;
+
+    bool mutually_rec_func_find_fixed_point(RecursiveCGContext& rec_cg_context, int& fail_index, bool visit_once) const;
     
     // the size of the sub-block before the recursive call
     unsigned int before_block_size;
@@ -60,6 +66,8 @@ public:
     
 private:
     void prepare_for_next_iteration(FactVec& outputs, RecursiveCGContext& rec_cg_context) const;
+    
+    void prepare_for_next_function(FactVec& outputs, RecursiveCGContext& rec_cg_context) const;
     
     void get_rec_stmts(const Statement*& rec_if, const Statement*& rec_block, const Statement*& rec_stmt);
     

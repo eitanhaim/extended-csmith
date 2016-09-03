@@ -167,7 +167,6 @@ private:
 	void OutputHeader(std::ostream &);
 	void OutputFormalParamList(std::ostream &);
 	void GenerateBody(const CGContext& prev_context);
-	void make_return_const();
 
 	static void initialize_builtin_functions();
 	static void make_builtin_function(const string &function_string);
@@ -176,9 +175,10 @@ private:
     static void InitProbabilityTable();
     // **************************************************************************** <<
 
-protected:  // ExtendedCsmith Edit
-	enum { UNBUILT, BUILDING, BUILT } build_state;
-	std::vector<const Variable*> referenced_ptrs;
+protected:
+    void make_return_const();                       // ExtendedCsmith Edit
+	enum { UNBUILT, BUILDING, BUILT } build_state;  // ExtendedCsmith Edit
+	std::vector<const Variable*> referenced_ptrs;   // ExtendedCsmith Edit
 };
 
 void GenerateFunctions(void);

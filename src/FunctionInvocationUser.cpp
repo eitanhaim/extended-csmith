@@ -329,7 +329,7 @@ FunctionInvocationUser::build_invocation(Function *target, CGContext &cg_context
 		Effect effect_context = cg_context.get_effect_context();
 		effect_context.add_effect(func->accum_eff_context);
 		CGContext new_context(cg_context, func, effect_context, &effect_accum); 
-		failed = !revisit(fm->global_facts, new_context);  
+		failed = !revisit(fm->global_facts, new_context);
 		// incorporate facts from revisit
 		if (!failed) { 
 			assert(cg_context.get_current_block());

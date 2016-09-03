@@ -10,16 +10,17 @@
 #ifndef RecursiveFactMgr_h
 #define RecursiveFactMgr_h
 
+#include <vector>
+#include <map>
+#include "FactMgr.h"
+#include "CGContext.h"
+#include "MutuallyRecursiveFunction.h"
+
 class Block;
 class FactMgr;
 class Function;
 class Statement;
 class CGContext;
-
-#include <vector>
-#include <map>
-#include "FactMgr.h"
-#include "CGContext.h"
 
 using namespace std;
 
@@ -60,6 +61,9 @@ public:
     
     void prepare_for_curr_iteration();
     
+    void update_map_fact_mgrs_for_adjacent(MutuallyRecursiveFunction *next_func, const Statement* rec_if,
+                                           const Statement*rec_block, const Statement* rec_stmt);
+    
     // maps call chains to fact managers
     map<vector<const Block*>, FactMgr*> map_fact_mgrs;
     
@@ -87,7 +91,7 @@ private:
     // before generating the sub-block following the recursive call
     map<vector<const Block*>, FactVec> map_pre_facts;
     
-        // maps call chains to fact managers
+    // maps call chains to fact managers
     map<vector<const Block*>, FactMgr*> map_deleted_fact_mgrs;
 };
 

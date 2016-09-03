@@ -216,4 +216,53 @@ RecursiveCGContext::prepare_for_curr_iteration()
     map_deleted_cg_contexts[to_remove] = map_cg_contexts[to_remove];
     map_cg_contexts.erase(to_remove);
 }
+
+/**
+ * Updates the maps of the current function and the next function in the recursive call cycle.
+ * This function is called after preforming DFA analysis, following the recursive call creations.
+ */
+void
+RecursiveCGContext::update_map_cg_contexts_for_adjacent(MutuallyRecursiveFunction *next_func, const Statement* rec_if,
+                                                        const Statement*rec_block, const Statement* rec_stmt)
+{
+    RecursiveCGContext *next_rec_cgc = get_rec_cg_context_for_func(next_func);
+
+    vector<const Block*> to_remove;
+    map<vector<const Block*>, CGContext*>::iterator curr_iter;
+    map<vector<const Block*>, CGContext*>::iterator next_iter;
+    for (curr_iter = map_cg_contexts.begin(), next_iter = std::next(next_rec_cgc->map_cg_contexts.begin());
+         curr_iter != map_cg_contexts.end() && next_iter != next_rec_cgc->map_cg_contexts.end(); curr_iter++, next_iter++) {
+        bool is_last = (std::next(next_iter) == map_cg_contexts.end());
+        bool is_penultimate = (!is_last && std::next(next_iter, 2) == map_cg_contexts.end());
+        if (is_penultimate) {
+            to_remove = next_iter->first;
+            continue;
+        }
+        
+        CGContext *cg_context = curr_iter->second;
+        CGContext *next_cg_context = next_iter->second;
+        
+        // handover from callee to caller: effects
+        RecursiveFactMgr *rec_fm = get_rec_fact_mgr_for_func(func);
+        FactMgr* fm = rec_fm->get_fact_mgr(cg_context);
+        cg_context->reset_effect_stm(fm->map_stm_effect[rec_stmt]);
+        cg_context->reset_effect_accum(fm->map_accum_effect[rec_stmt]);
+        cg_context->add_visible_effect(*next_cg_context->get_effect_accum(), cg_context->get_current_block());
+        
+        // set the values of map_stm_effect and map_accum_effect,
+        // for the statements containing the recursive call
+        fm->map_stm_effect[rec_stmt] = cg_context->get_effect_stm();
+        fm->map_accum_effect[rec_stmt] = *cg_context->get_effect_accum();
+        if (rec_if && rec_block) {
+            fm->map_stm_effect[rec_block].add_effect(cg_context->get_effect_stm());
+            fm->map_accum_effect[rec_block].add_effect(*cg_context->get_effect_accum());
+            fm->map_stm_effect[rec_if].add_effect(cg_context->get_effect_stm());
+            fm->map_accum_effect[rec_if].add_effect(*cg_context->get_effect_accum());
+        }
+    }
+    next_rec_cgc->map_cg_contexts.erase(to_remove);
+    
+    //init_merged_cg_context();
+}
+
 // **************************************************************************** <<

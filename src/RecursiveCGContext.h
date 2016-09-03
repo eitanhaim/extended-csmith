@@ -13,6 +13,7 @@
 #include <vector>
 #include <map>
 #include "Effect.h"
+#include "MutuallyRecursiveFunction.h"
 
 class Block;
 class CGContext;
@@ -56,6 +57,9 @@ public:
     void reset_effect_accums();
     
     void prepare_for_curr_iteration();
+    
+    void update_map_cg_contexts_for_adjacent(MutuallyRecursiveFunction *next_func, const Statement* rec_if,
+                                             const Statement*rec_block, const Statement* rec_stmt);
 
     // maps call chains to contexts
     map<vector<const Block*>, CGContext*> map_cg_contexts;

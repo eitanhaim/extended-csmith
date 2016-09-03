@@ -100,6 +100,10 @@ RecursiveBlock::make_random(RecursiveCGContext& rec_cg_context)
     // generate the sub-block before the recursive call
     if (!is_immediate_or_first_mutually)
         mr_func->is_building_before = true;
+    if (mr_func && mr_func->is_first()) {
+        mr_func->first_pre_effect = pre_effect;
+        mr_func->first_pre_facts = fm->global_facts;
+    }
     for (int i = 0; i < b->before_block_size; i++) {
         map<const Statement*, FactVec> facts_in_copy = fm->map_facts_in;
         map<const Statement*, FactVec> facts_out_copy = fm->map_facts_out;
@@ -145,19 +149,23 @@ RecursiveBlock::make_random(RecursiveCGContext& rec_cg_context)
         return NULL;
     }
     
+    if (!is_immediate_or_first_mutually) {
+        return b;
+    }
+    
     // perform DFA analysis after generating the recursive call
     bool is_ok;
     if (curr_func->func_type == eImmediateRecursive)
         is_ok = b->immediate_rec_call_post_creation_analysis(rec_cg_context, pre_effect);
-    else
-        is_ok = b->mutually_rec_call_post_creation_analysis(rec_cg_context, pre_effect);
+    else if (mr_func && mr_func->is_first())
+        is_ok = mutually_rec_call_post_creation_analysis(mr_func);
 
     if (!is_ok || Error::get_error() != SUCCESS) {
         curr_func->stack.pop_back();
         delete b;
         return NULL;
     }
-
+    
     // generate the sub-block after the recursive call
     cg_context = rec_cg_context.get_curr_cg_context();
     fm = rec_fm->get_curr_fact_mgr();
@@ -183,7 +191,7 @@ RecursiveBlock::make_random(RecursiveCGContext& rec_cg_context)
     if (curr_func->func_type == eImmediateRecursive)
         b->immediate_rec_func_post_creation_analysis(rec_cg_context);
     else
-        b->mutually_rec_func_post_creation_analysis(rec_cg_context);
+        mutually_rec_func_post_creation_analysis(mr_func);
 
     if (Error::get_error() != SUCCESS) {
         curr_func->stack.pop_back();
@@ -241,7 +249,7 @@ RecursiveBlock::add_back_post_return_facts(FactMgr* fm, std::vector<const Fact*>
 }
 
 /**
- * Once generated the sub-block before the recursive call, as well as the recursive call,
+ * Once generated the sub-block before the recursive call, as well as the recursive call itself,
  * verify whether some statement caused the analyzer to fail during the 2nd iteration of the function body
  * (in most case, a null/dead pointer dereference would do it).
  * If so, delete the statement in which analyzer fails and all subsequent statements up to the recursive call.
@@ -271,7 +279,7 @@ RecursiveBlock::immediate_rec_call_post_creation_analysis(RecursiveCGContext& re
     prepare_for_next_iteration(outputs, rec_cg_context);
     while (!immediate_rec_call_find_fixed_point(outputs, rec_cg_context, fail_index, visit_once)) {
         if (fail_index == before_block_size)
-            return false;
+            return false; // cannot recover from a probelm in the recursive call
         
         size_t i;
         rec_cg_context.set_curr_cg_context(cg_context);
@@ -309,7 +317,7 @@ RecursiveBlock::immediate_rec_call_post_creation_analysis(RecursiveCGContext& re
  *    outputs: the outputs env after generating the current block
  *    rec_cg_context: code generation context for the recursive function
  *    fail_index: records which statement in this block caused analyzer to fail
- *    visit_one: when is true, the statements in this block must be visited at least once
+ *    visit_once: when is true, the statements in this block must be visited at least once
  */
 bool
 RecursiveBlock::immediate_rec_call_find_fixed_point(FactVec outputs, RecursiveCGContext& rec_cg_context, int& fail_index, bool visit_once) const
@@ -429,7 +437,7 @@ RecursiveBlock::get_rec_stmts(const Statement*& rec_if, const Statement*& rec_bl
 }
 
 /**
- * Once generated the sub-block before the recursive call, as well as the recursive call,
+ * Once generated the sub-blocks up to the recursive calls in every function participating the recursive call cycle,
  * verify whether some statement caused the analyzer to fail during the 2nd iteration of the function body
  * (in most case, a null/dead pointer dereference would do it).
  * If so, delete the statement in which analyzer fails and all subsequent statements up to the recursive call.
@@ -437,9 +445,199 @@ RecursiveBlock::get_rec_stmts(const Statement*& rec_if, const Statement*& rec_bl
  * Also performs effect analysis.
  */
 bool
-RecursiveBlock::mutually_rec_call_post_creation_analysis(RecursiveCGContext& rec_cg_context, const Effect& pre_effect)
+RecursiveBlock::mutually_rec_call_post_creation_analysis(MutuallyRecursiveFunction *first_func)
 {
-    // TODO: complete
+    RecursiveBlock *first_body = dynamic_cast<RecursiveBlock *>(first_func->blocks[0]);
+    RecursiveCGContext &first_rec_cgc = *get_rec_cg_context_for_func(first_func);
+    RecursiveFactMgr *first_rec_fm = get_rec_fact_mgr_for_func(first_func);
+    
+    MutuallyRecursiveFunction *last_func = first_func->get_prev_func();
+    RecursiveBlock *last_body = dynamic_cast<RecursiveBlock *>(last_func->blocks[0]);
+    RecursiveCGContext &last_rec_cgc = *get_rec_cg_context_for_func(last_func);
+    RecursiveFactMgr *last_rec_fm = get_rec_fact_mgr_for_func(last_func);
+    FactMgr *last_fm = last_rec_fm->get_curr_fact_mgr();
+    
+    // set map values for the body of each function in the recursive call cycle
+    MutuallyRecursiveFunction *curr_func = first_func;
+    const int num_funcs = first_func->get_num_funcs();
+    for (int i = first_func->get_index(); i < num_funcs; i++, curr_func = curr_func->get_next_func()) {
+        RecursiveBlock *curr_body = dynamic_cast<RecursiveBlock *>(curr_func->blocks[0]);
+        RecursiveCGContext &rec_cg_context = *get_rec_cg_context_for_func(curr_func);
+        RecursiveFactMgr *rec_fm = get_rec_fact_mgr_for_func(curr_func);
+        CGContext *cg_context = rec_cg_context.get_curr_cg_context();
+        FactMgr *fm = rec_fm->get_curr_fact_mgr();
+        
+        fm->map_visited[curr_body] = true;
+        curr_body->set_accumulated_effect(*cg_context);
+        vector<const Fact*> post_facts = fm->global_facts;
+        FactMgr::update_facts_for_oos_vars(curr_body->local_vars, post_facts);
+        fm->remove_rv_facts(post_facts);
+        fm->set_fact_out(curr_body, post_facts);
+    }
+
+    // perform DFA analysis
+    int fail_index;
+    bool visit_once = false;
+    MutuallyRecursiveFunction *failed_func;
+    FactVec outputs = last_fm->global_facts;
+    last_body->prepare_for_next_function(outputs, last_rec_cgc);
+    while (!mutually_rec_call_find_fixed_point(outputs, first_func, fail_index, failed_func, visit_once)) {
+        RecursiveBlock *failed_body = dynamic_cast<RecursiveBlock *>(failed_func->blocks[0]);
+        if (fail_index == failed_body->before_block_size)
+            return false; // cannot recover from a probelm in the recursive call
+        
+        RecursiveCGContext &failed_rec_cgc = *get_rec_cg_context_for_func(failed_func);
+        RecursiveFactMgr *failed_rec_fm = get_rec_fact_mgr_for_func(failed_func);
+        failed_rec_cgc.set_curr_cg_context(failed_rec_cgc.map_cg_contexts.begin()->second);
+        failed_rec_fm->set_curr_fact_mgr(failed_rec_fm->map_fact_mgrs.begin()->second);
+        
+        for (size_t i = fail_index; i < failed_body->before_block_size; i++) {
+            failed_body->remove_stmt(failed_body->stms[i]);
+            i = fail_index - 1;
+            failed_body->before_block_size--;
+        }
+        
+        // if we delete some statements, next visit must go through statements (no shortcut)
+        visit_once = true;
+        
+        // clean up the map from previous analysis that might include facts caused by deleted statements
+        first_rec_fm->rec_call_reset_map_fact_mgrs(first_body);
+        outputs = first_func->first_pre_facts;
+        
+        // reset incoming effects
+        first_rec_cgc.rec_call_reset_map_cg_contexts(first_func->first_pre_effect);
+
+        // clean the maps map_fact_mgrs and map_cg_contexts for each function in the cycle but the first
+        curr_func = first_func->get_next_func();
+        for (int i = curr_func->get_index(); i < num_funcs; i++, curr_func = curr_func->get_next_func()) {
+            RecursiveCGContext &rec_cg_context = *get_rec_cg_context_for_func(curr_func);
+            RecursiveFactMgr *rec_fm = get_rec_fact_mgr_for_func(curr_func);
+            rec_cg_context.map_cg_contexts.clear();
+            rec_fm->map_fact_mgrs.clear();
+        }
+    }
+    
+    // update the maps map_fact_mgrs and map_cg_contexts for the first and last functions in the cycle
+    const Statement *rec_if, *rec_block, *rec_stmt;
+    first_body->get_rec_stmts(rec_if, rec_block, rec_stmt);
+    last_rec_fm->update_map_fact_mgrs_for_adjacent(first_func, rec_if, rec_block, rec_stmt);
+    last_rec_cgc.update_map_cg_contexts_for_adjacent(first_func, rec_if, rec_block, rec_stmt);
+    
+    return true;
+}
+
+/**
+ * Creates a new context and fact manager from current for revisiting the next function.
+ * In addition, performs a caller-to-callee handover with outputs.
+ */
+void
+RecursiveBlock::prepare_for_next_function(FactVec& outputs, RecursiveCGContext& rec_cg_context) const
+{
+    MutuallyRecursiveFunction *next_func = dynamic_cast<MutuallyRecursiveFunction *>(func)->get_next_func();
+    RecursiveCGContext &next_rec_cgc = *get_rec_cg_context_for_func(next_func);
+    RecursiveFactMgr *next_rec_fm = get_rec_fact_mgr_for_func(next_func);
+    
+    CGContext *cg_context = rec_cg_context.get_curr_cg_context();
+    FactMgr *next_fm = next_rec_fm->get_curr_fact_mgr();
+
+    // create a new context for the next function
+    vector<const Block*> call_chain;
+    if (next_rec_cgc.get_num_cg_contexts() < next_rec_cgc.get_max_cg_contexts()) {
+        Effect *effect_accum = new Effect(cg_context->get_accum_effect());
+        Effect *effect_context = new Effect(cg_context->get_effect_context());
+        CGContext *new_context = new CGContext(*cg_context, next_func, *effect_context, effect_accum);
+        next_rec_cgc.add_cg_context(new_context);
+        call_chain = new_context->call_chain;
+    }
+    
+    // create a new fact manager for the next function
+    if (next_rec_fm->get_num_fact_mgrs() < next_rec_fm->get_max_fact_mgrs()) {
+        FactMgr* new_fm = new FactMgr(next_fm);
+        new_fm->clear_map_visited();
+        next_rec_fm->add_fact_mgr(call_chain, new_fm);
+        next_fm = new_fm;
+    }
+    next_fm->caller_to_callee_handover(rec_call, outputs);
+}
+
+/**
+ * DFA analysis for the sub-blocks up to the recursive calls in every function participating the recursive call cycle.
+ *
+ * params:
+ *    outputs: the outputs env after generating the body of the last function in the recursive call cycle
+ *    first_func: the first function in the recursive call cycle
+ *    fail_index: records which statement in the body of failed_func caused analyzer to fail
+ *    failed_func: records which function in the recursive call cycle caused analyzer to fail
+ *    visit_once: when is true, the statements in the body of the first fucntion must be visited at least once
+ */
+bool
+RecursiveBlock::mutually_rec_call_find_fixed_point(FactVec outputs, MutuallyRecursiveFunction *first_func, int& fail_index,
+                                                   MutuallyRecursiveFunction *&failed_func, bool visit_once)
+{
+    static int g = 0;
+    int cnt = 0;
+    FactVec inputs;
+    MutuallyRecursiveFunction *curr_func;
+    for (curr_func = first_func; ; curr_func = curr_func->get_next_func()) {
+        RecursiveBlock *curr_body = dynamic_cast<RecursiveBlock *>(curr_func->blocks[0]);
+        RecursiveCGContext &rec_cg_context = *get_rec_cg_context_for_func(curr_func);
+        RecursiveFactMgr *rec_fm = get_rec_fact_mgr_for_func(curr_func);
+        CGContext *cg_context = rec_cg_context.get_curr_cg_context();
+        FactMgr *fm = rec_fm->get_curr_fact_mgr();
+        
+        // if reached the maximum number of fact sets in an inclusive fact set,
+        // include the inputs from the previous iteration in this one
+        if (fm->map_visited[curr_body]) {
+            if (cnt++ > 7) {
+                // takes too many iterations to reach a fixed point, must be something wrong
+                assert(0);
+            }
+            
+            inputs = fm->map_facts_in[curr_body];
+            merge_facts(inputs, outputs);
+        } else {
+            inputs = outputs;
+        }
+        
+        // if we have never visited the block, force the visitor to go through all statements at least once
+        if (!visit_once && curr_func->is_first()) {
+            int shortcut = curr_body->shortcut_analysis(inputs, *cg_context);
+            if (shortcut == 0) return true;
+        }
+        
+        outputs = inputs;
+        // add facts for locals
+        for (size_t i = 0; i < curr_body->local_vars.size(); i++) {
+            const Variable* v = curr_body->local_vars[i];
+            FactMgr::add_new_var_fact(v, outputs);
+        }
+        
+        // revisit statements with new inputs
+        cg_context->not_to_remove_rv_facts = false;
+        for (size_t i = 0; i < curr_body->stms.size(); i++) {
+            int h = g++;
+            if (h == 2585)
+                BREAK_NOP;		// for debugging
+            if (!curr_body->stms[i]->analyze_with_edges_in(outputs, *cg_context)) {
+                fail_index = i;
+                failed_func = curr_func;
+                return false;
+            }
+        }
+        cg_context->not_to_remove_rv_facts = false;
+        
+        // set map values for the current block
+        fm->set_fact_in(curr_body, inputs);
+        FactVec post_facts = outputs;
+        FactMgr::update_facts_for_oos_vars(curr_body->local_vars, post_facts);
+        fm->set_fact_out(curr_body, post_facts);
+        fm->map_visited[curr_body] = true;
+        curr_body->set_accumulated_effect(*cg_context);
+        visit_once = false;
+        
+        // prepare for the next iteration
+        curr_body->prepare_for_next_function(outputs, rec_cg_context);
+    }
     return true;
 }
 
@@ -543,7 +741,7 @@ RecursiveBlock::update_maps_for_curr_blk(RecursiveCGContext& rec_cg_context) con
  * params:
  *    rec_cg_context: code generation context for the recursive function
  *    fail_index: records which statement in this block caused analyzer to fail
- *    visit_one: when is true, the statements in this block must be visited at least once
+ *    visit_once: when is true, the statements in this block must be visited at least once
  */
 bool
 RecursiveBlock::immediate_rec_func_find_fixed_point(RecursiveCGContext& rec_cg_context, int& fail_index, bool visit_once) const
@@ -640,8 +838,17 @@ RecursiveBlock::shortcut_post_analysis(vector<const Fact*>& inputs, CGContext& c
 }
 
 void
-RecursiveBlock::mutually_rec_func_post_creation_analysis(RecursiveCGContext& rec_cg_context)
+RecursiveBlock::mutually_rec_func_post_creation_analysis(MutuallyRecursiveFunction *first_func)
 {
-    // TODO: complete
+    
+    // TODO: complete the entire analysis
+    
+    
+    // finish the generation of each function in the cycle but the first
+    MutuallyRecursiveFunction *curr_func = first_func->get_next_func();
+    int num_funcs = first_func->get_num_funcs();
+    for (int i = curr_func->get_index(); i < num_funcs; i++, curr_func = curr_func->get_next_func()) {
+        curr_func->finish_generation();
+    }
 }
 // **************************************************************************** <<

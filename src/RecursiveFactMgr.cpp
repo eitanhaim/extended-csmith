@@ -214,4 +214,59 @@ RecursiveFactMgr::prepare_for_curr_iteration()
     map_deleted_fact_mgrs[to_remove] = map_fact_mgrs[to_remove];
     map_fact_mgrs.erase(to_remove);
 }
+
+/**
+ * Updates the maps of the current function and the next function in the recursive call cycle.
+ * This function is called after preforming DFA analysis, following the recursive call creations.
+ */
+void
+RecursiveFactMgr::update_map_fact_mgrs_for_adjacent(MutuallyRecursiveFunction *next_func, const Statement* rec_if,
+                                                    const Statement*rec_block, const Statement* rec_stmt)
+{
+    RecursiveFactMgr *next_rec_fm = get_rec_fact_mgr_for_func(next_func);
+    RecursiveBlock *next_body = dynamic_cast<RecursiveBlock *>(next_func->blocks[0]);
+
+    // save the return facts of the first fact manager of the first function to global_ret_facts
+    if (next_func->is_first()) {
+        FactVec ret_facts;
+        next_body->add_back_return_facts(next_rec_fm->map_fact_mgrs.begin()->second, ret_facts);
+        next_rec_fm->global_ret_facts = ret_facts;
+    }
+    
+    vector<const Block*> to_remove;
+    map<vector<const Block*>, FactMgr*>::iterator curr_iter;
+    map<vector<const Block*>, FactMgr*>::iterator next_iter;
+    for (curr_iter = map_fact_mgrs.begin(), next_iter = std::next(next_rec_fm->map_fact_mgrs.begin());
+         curr_iter != map_fact_mgrs.end() && next_iter != next_rec_fm->map_fact_mgrs.end(); curr_iter++, next_iter++) {
+        bool is_last = (std::next(next_iter) == map_fact_mgrs.end());
+        bool is_penultimate = (!is_last && std::next(next_iter, 2) == map_fact_mgrs.end());
+        if (is_penultimate) {
+            to_remove = next_iter->first;
+            continue;
+        }
+        
+        FactMgr *fm = curr_iter->second;
+        FactMgr *next_fm = next_iter->second;
+        
+        // handover from callee to caller: points-to/union facts
+        FactVec ret_facts;
+        next_body->add_back_return_facts(next_fm, ret_facts);
+        next_body->rec_call->save_return_fact(ret_facts);
+        fm->global_facts = ret_facts;
+        FactVec facts_copy = fm->map_facts_in[rec_stmt];
+        renew_facts(facts_copy, fm->global_facts);
+        fm->global_facts = facts_copy;
+        
+        // set map_facts_out values for the statements containing the recursive call
+        fm->remove_rv_facts(fm->global_facts);
+        fm->map_facts_out[rec_stmt] = fm->global_facts;
+        if (rec_if && rec_block) {
+            fm->map_facts_out[rec_block] = fm->global_facts;
+            fm->map_facts_out[rec_if] = fm->global_facts;
+        }
+    }
+    next_rec_fm->map_fact_mgrs.erase(to_remove);
+    
+    //init_merged_fact_mgr();
+}
 // **************************************************************************** <<

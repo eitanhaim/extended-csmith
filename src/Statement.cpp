@@ -370,9 +370,9 @@ Statement::make_random_recursive(CGContext &cg_context, eStatementType t)
         cg_context.blk_depth--;
     }
     
-    // sometimes make_random may return 0 for various reasons. keep generating 
+    // sometimes make_random_recursive may return 0 for various reasons. keep generating
     if (s == 0) {
-        return make_random(cg_context);
+        return make_random_recursive(cg_context, t);
     } 
     s->func = cg_context.get_current_func(); 
     s->parent = cg_context.get_current_block();
