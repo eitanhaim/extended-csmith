@@ -120,6 +120,10 @@ csmith_SOURCES = \
 	FunctionInvocationUnary.h \
 	FunctionInvocationUser.cpp \
 	FunctionInvocationUser.h \
+	ImmediateRecursiveCall.cpp \
+	ImmediateRecursiveCall.h \
+	ImmediateRecursiveFunction.cpp \
+	ImmediateRecursiveFunction.h \
 	KleeExtension.cpp \
 	KleeExtension.h \
 	Lhs.cpp \
@@ -128,6 +132,10 @@ csmith_SOURCES = \
 	LinearSequence.h \
 	MspFilters.cpp \
 	MspFilters.h \
+	MutuallyRecursiveFunction.cpp \
+	MutuallyRecursiveFunction.h \
+	MutuallyRecursiveCall.cpp \
+	MutuallyRecursiveCall.h \
 	OutputMgr.cpp \
 	OutputMgr.h \
 	PartialExpander.cpp \
@@ -138,6 +146,12 @@ csmith_SOURCES = \
 	RandomNumber.cpp \
 	RandomNumber.h \
 	RandomProgramGenerator.cpp \
+	RecursiveBlock.cpp \
+	RecursiveBlock.h \
+	RecursiveCGContext.cpp \
+	RecursiveCGContext.h \
+	RecursiveFactMgr.cpp \
+	RecursiveFactMgr.h \
 	Reducer.cpp \
 	Reducer.h \
 	ReducerOutputMgr.cpp \
